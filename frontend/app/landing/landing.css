@@ -1,0 +1,467 @@
+.kaelis-landing {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* ---------- Pinned scroll mechanics ---------- */
+/* The track is taller than the viewport; the viewport itself sticks to the top of
+   the screen while its scroll progress (0 to 1) drives the hero-fade / terminal-rise
+   transforms applied in LandingPage.tsx via framer-motion's useScroll+useTransform. */
+.kaelis-pin-track {
+  position: relative;
+  height: 220vh;
+}
+
+.kaelis-pin-viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ---------- Nav ---------- */
+.kaelis-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 48px;
+}
+
+.kaelis-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: var(--kaelis-ink);
+}
+
+.kaelis-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  font-size: 0.9rem;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-nav__links a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 200ms ease;
+}
+
+.kaelis-nav__links a:hover {
+  color: var(--kaelis-ink);
+}
+
+.kaelis-nav__cta {
+  padding: 9px 18px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--kaelis-line);
+  color: var(--kaelis-ink);
+  font-weight: 500;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.kaelis-nav__cta:hover {
+  border-color: var(--kaelis-gold);
+  background: var(--kaelis-gold-wash);
+}
+
+/* ---------- Connect wallet button ---------- */
+.kaelis-connect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: var(--radius-control);
+  border: none;
+  background: var(--kaelis-ink);
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  min-height: 44px;
+  transition: background 200ms ease, transform 150ms ease;
+}
+
+.kaelis-connect-btn:hover:not(:disabled) {
+  background: #262626;
+}
+
+.kaelis-connect-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.kaelis-connect-btn--connected {
+  background: var(--kaelis-gold-wash);
+  color: var(--kaelis-ink);
+  border: 1px solid var(--kaelis-gold);
+}
+
+.kaelis-connect-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--kaelis-success);
+  display: inline-block;
+}
+
+/* ---------- Hero ---------- */
+.kaelis-hero {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--kaelis-bg);
+}
+
+.kaelis-hero__content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 48px;
+  width: 100%;
+}
+
+.kaelis-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--kaelis-gold);
+  color: var(--kaelis-gold);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin-bottom: 28px;
+  width: fit-content;
+}
+
+.kaelis-hero__title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 4.4vw, 4.2rem);
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  color: var(--kaelis-ink);
+  margin: 0 0 24px 0;
+}
+
+.kaelis-hero__title--accent {
+  color: var(--kaelis-gold);
+  font-style: italic;
+}
+
+.kaelis-hero__subtitle {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--kaelis-ink-soft);
+  max-width: 480px;
+  margin: 0 0 36px 0;
+}
+
+.kaelis-hero__actions {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.kaelis-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 26px;
+  border-radius: var(--radius-control);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 200ms ease;
+}
+
+.kaelis-btn--primary {
+  background: var(--kaelis-gold);
+  color: white;
+}
+
+.kaelis-btn--primary:hover {
+  background: var(--kaelis-gold-bright);
+  transform: translateY(-1px);
+}
+
+.kaelis-btn--secondary {
+  background: transparent;
+  color: var(--kaelis-ink);
+  border: 1px solid var(--kaelis-line);
+}
+
+.kaelis-btn--secondary:hover {
+  border-color: var(--kaelis-ink);
+}
+
+.kaelis-btn--large {
+  min-height: 56px;
+  padding: 0 36px;
+  font-size: 1rem;
+  align-self: center;
+  margin-top: 28px;
+}
+
+.kaelis-hero__badges {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--kaelis-ink-faint);
+}
+
+.kaelis-hero__right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Confidential chip ---------- */
+.kaelis-chip {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kaelis-chip__rails {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.55;
+}
+
+.kaelis-chip__core {
+  position: relative;
+  width: 58%;
+  height: 58%;
+  filter: drop-shadow(0 20px 40px rgba(176, 141, 63, 0.18));
+}
+
+/* ---------- Terminal section ---------- */
+.kaelis-terminal-section {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--kaelis-terminal-bg);
+  padding: 40px 24px;
+}
+
+.kaelis-terminal {
+  width: 100%;
+  max-width: 900px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--kaelis-terminal-bg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+.kaelis-terminal__chrome {
+  display: flex;
+  gap: 8px;
+  padding: 14px 18px;
+  background: #17181a;
+}
+
+.kaelis-terminal__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.kaelis-terminal__dot--red {
+  background: #ff5f56;
+}
+
+.kaelis-terminal__dot--yellow {
+  background: #ffbd2e;
+}
+
+.kaelis-terminal__dot--green {
+  background: #27c93f;
+}
+
+.kaelis-terminal__body {
+  padding: 24px 28px;
+  min-height: 320px;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--kaelis-terminal-fg);
+}
+
+.kaelis-terminal__line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.kaelis-terminal__cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  background: var(--kaelis-terminal-fg);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: kaelis-blink 1s step-start infinite;
+}
+
+@keyframes kaelis-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---------- Footer ---------- */
+.kaelis-footer {
+  background: var(--kaelis-bg);
+  padding: 100px 48px 60px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.kaelis-footer__features {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 32px;
+  margin-bottom: 80px;
+  padding-bottom: 60px;
+  border-bottom: 1px solid var(--kaelis-line);
+}
+
+.kaelis-footer__feature {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+}
+
+.kaelis-footer__feature h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--kaelis-ink);
+}
+
+.kaelis-footer__feature p {
+  font-size: 0.86rem;
+  color: var(--kaelis-ink-soft);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.kaelis-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  font-size: 0.88rem;
+  color: var(--kaelis-ink-soft);
+  margin-bottom: 24px;
+}
+
+.kaelis-footer__links a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.kaelis-footer__links a:hover {
+  color: var(--kaelis-ink);
+}
+
+.kaelis-footer__copy {
+  font-size: 0.8rem;
+  color: var(--kaelis-ink-faint);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .kaelis-hero__content {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+
+  .kaelis-hero__left {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kaelis-hero__actions,
+  .kaelis-hero__badges {
+    justify-content: center;
+  }
+
+  .kaelis-footer__features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .kaelis-nav {
+    padding: 20px 20px;
+  }
+
+  .kaelis-nav__links {
+    gap: 14px;
+    font-size: 0.8rem;
+  }
+
+  .kaelis-nav__links a:not(.kaelis-nav__cta) {
+    display: none;
+  }
+
+  .kaelis-hero__content {
+    padding: 0 20px;
+  }
+
+  .kaelis-hero__title {
+    font-size: clamp(2rem, 8vw, 2.8rem);
+  }
+
+  .kaelis-footer {
+    padding: 60px 20px 40px;
+  }
+
+  .kaelis-footer__features {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 375px) {
+  .kaelis-hero__badges {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+}

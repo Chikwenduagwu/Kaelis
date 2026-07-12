@@ -4,86 +4,92 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { TERMINAL_LINES } from './terminalLines';
 
-const TYPING_SPEED_MS = 26;
-const LINE_PAUSE_MS = 500;
+const TICK_MS = 26; // ms per character tick
+const LINE_PAUSE_TICKS = Math.round(500 / TICK_MS); // idle ticks between completed lines
 
-interface RenderedLine {
-  text: string;
-  complete: boolean;
+interface TypewriterState {
+  lines: string[]; // completed lines, kept permanently
+  currentLine: string; // the line currently being typed
+  lineIndex: number; // index into TERMINAL_LINES for the line being typed
+  charIndex: number; // how many characters of the current line are shown
+  pauseTicksLeft: number; // idle ticks remaining after a line just completed
+}
+
+const INITIAL_STATE: TypewriterState = {
+  lines: [],
+  currentLine: '',
+  lineIndex: 0,
+  charIndex: 0,
+  pauseTicksLeft: 0,
+};
+
+/**
+ * Single reducer-style tick function -- one state object, one setState call per
+ * interval tick, no nested setState-inside-setState. This replaces an earlier
+ * implementation that split progress across several refs/states updated inside each
+ * other's functional updaters, which was fragile: any interruption to that chain
+ * (re-render, remount) silently killed the animation after whatever line was
+ * mid-flight -- the exact "stuck after one line" bug that was reported. A plain
+ * `setInterval` reading and writing a single state value has nothing long-lived to
+ * go stale, and trivially restarts from scratch if the component remounts.
+ */
+function advance(state: TypewriterState): TypewriterState {
+  if (state.pauseTicksLeft > 0) {
+    return { ...state, pauseTicksLeft: state.pauseTicksLeft - 1 };
+  }
+
+  const fullLine = TERMINAL_LINES[state.lineIndex % TERMINAL_LINES.length];
+  const nextCharIndex = state.charIndex + 1;
+  const partial = fullLine.slice(0, nextCharIndex);
+
+  if (nextCharIndex >= fullLine.length) {
+    // Line just completed: move it into the permanent `lines` array, reset for the
+    // next line, and hold for a beat before starting the next one.
+    return {
+      lines: [...state.lines, fullLine],
+      currentLine: '',
+      lineIndex: state.lineIndex + 1,
+      charIndex: 0,
+      pauseTicksLeft: LINE_PAUSE_TICKS,
+    };
+  }
+
+  return { ...state, currentLine: partial, charIndex: nextCharIndex };
 }
 
 export function TerminalSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [hasStarted, setHasStarted] = useState(false);
-  const [renderedLines, setRenderedLines] = useState<RenderedLine[]>([]);
-  const lineIndexRef = useRef(0);
-  const charIndexRef = useRef(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const [state, setState] = useState<TypewriterState>(INITIAL_STATE);
 
-  // Start the typing loop only once the section actually scrolls into view.
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setHasStarted(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.3 }
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.15 }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    if (!hasStarted) return;
-    let timeoutId: ReturnType<typeof setTimeout>;
+    if (!isVisible) return;
+    const intervalId = setInterval(() => {
+      setState((prev) => advance(prev));
+    }, TICK_MS);
+    return () => clearInterval(intervalId);
+  }, [isVisible]);
 
-    function typeNextChar() {
-      const currentLine = TERMINAL_LINES[lineIndexRef.current % TERMINAL_LINES.length];
-      charIndexRef.current += 1;
-
-      setRenderedLines((prev) => {
-        const next = [...prev];
-        const partial = currentLine.slice(0, charIndexRef.current);
-        const isComplete = charIndexRef.current >= currentLine.length;
-
-        // Real terminal behavior: once a line is complete it is never touched again --
-        // it stays in place permanently and the next character starts a brand new
-        // line entry below it, rather than sliding a fixed window of "last N lines"
-        // and discarding earlier ones.
-        if (next.length > 0 && !next[next.length - 1].complete) {
-          next[next.length - 1] = { text: partial, complete: isComplete };
-        } else {
-          next.push({ text: partial, complete: isComplete });
-        }
-
-        return next;
-      });
-
-      if (charIndexRef.current >= currentLine.length) {
-        lineIndexRef.current += 1;
-        charIndexRef.current = 0;
-        timeoutId = setTimeout(typeNextChar, LINE_PAUSE_MS);
-      } else {
-        timeoutId = setTimeout(typeNextChar, TYPING_SPEED_MS);
-      }
-    }
-
-    timeoutId = setTimeout(typeNextChar, 300);
-    return () => clearTimeout(timeoutId);
-  }, [hasStarted]);
-
-  // Auto-scroll to the bottom as new lines are appended, so the terminal body
-  // behaves like a real scrolling log rather than clipping overflow.
   useEffect(() => {
     const body = bodyRef.current;
     if (body) {
       body.scrollTop = body.scrollHeight;
     }
-  }, [renderedLines]);
+  }, [state.lines, state.currentLine]);
+
+  const allLines = state.currentLine ? [...state.lines, state.currentLine] : state.lines;
 
   return (
     <section className="kaelis-terminal-section" ref={sectionRef}>
@@ -94,12 +100,10 @@ export function TerminalSection() {
           <span className="kaelis-terminal__dot kaelis-terminal__dot--green" />
         </div>
         <div className="kaelis-terminal__body" role="log" aria-live="polite" ref={bodyRef}>
-          {renderedLines.map((line, i) => (
+          {allLines.map((line, i) => (
             <div className="kaelis-terminal__line kaelis-terminal__line--prompt" key={i}>
-              {line.text}
-              {i === renderedLines.length - 1 && (
-                <span className="kaelis-terminal__cursor" aria-hidden />
-              )}
+              {line}
+              {i === allLines.length - 1 && <span className="kaelis-terminal__cursor" aria-hidden />}
             </div>
           ))}
         </div>
@@ -109,4 +113,4 @@ export function TerminalSection() {
       </Link>
     </section>
   );
-            }
+}

@@ -1,0 +1,56 @@
+
+> kaelis@0.1.0 demo:sepolia
+> hardhat run scripts/demo-flow.ts --network sepolia
+
+
+Distributor: 0xC7e9BadA8D028E91646f1A109E3eacfEA63e0684
+Recipient:   0xC7e9BadA8D028E91646f1A109E3eacfEA63e0684
+
+[1/6] Encrypting mint amount...
+Minting to campaign manager pool...
+Mint tx: 0x94742eb4afaf290b458aa48d2f4cd4a1314d7ad80798fa2eb536518a628badd8
+
+[2/6] Creating campaign...
+Campaign created, id: 4 tx: 0xa87ed339d2198cb2261fd2c7db93aeb7ff1433f2d762d0361590246495ed647f
+
+[3/6] Encrypting recipient allocation...
+Adding recipient...
+Recipient added, tx: 0xaaba4046af9062c013cbc842b37e24eef2d18819ae6f739f1b7fc5e2e0eecba4
+
+[4/6] Sealing campaign...
+Campaign sealed, tx: 0x84fb705dcf5a958ea613f59194fdd58172b58ecf6bd7cb036b4f573ecac82a66
+
+[5/6] Recipient claiming...
+Error: execution reverted (unknown custom error) (action="estimateGas", data="0xb87a12a90000aa36a72301317232fe73790ce1fe7ad50c05611392d3f18034ac6b37c76700000000000000000000000026ccf45dfe05fa4940aef7e8dc60806d1e468a1d", reason=null, transaction={ "data": "0x379607f50000000000000000000000000000000000000000000000000000000000000004", "from": "0xC7e9BadA8D028E91646f1A109E3eacfEA63e0684", "to": "0x41Fc662F6e64D4FAC4fBC6308647d0C79BDf787A" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0)
+    at makeError (/workspaces/Kaelis/node_modules/ethers/src.ts/utils/errors.ts:698:21)
+    at getBuiltinCallException (/workspaces/Kaelis/node_modules/ethers/src.ts/abi/abi-coder.ts:118:12)
+    at AbiCoder.getBuiltinCallException (/workspaces/Kaelis/node_modules/ethers/src.ts/abi/abi-coder.ts:235:16)
+    at JsonRpcProvider.getRpcError (/workspaces/Kaelis/node_modules/ethers/src.ts/providers/provider-jsonrpc.ts:1016:32)
+    at <anonymous> (/workspaces/Kaelis/node_modules/ethers/src.ts/providers/provider-jsonrpc.ts:571:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  code: 'CALL_EXCEPTION',
+  action: 'estimateGas',
+  data: '0xb87a12a90000aa36a72301317232fe73790ce1fe7ad50c05611392d3f18034ac6b37c76700000000000000000000000026ccf45dfe05fa4940aef7e8dc60806d1e468a1d',
+  reason: null,
+  transaction: {
+    to: '0x41Fc662F6e64D4FAC4fBC6308647d0C79BDf787A',
+    data: '0x379607f50000000000000000000000000000000000000000000000000000000000000004',
+    from: '0xC7e9BadA8D028E91646f1A109E3eacfEA63e0684'
+  },
+  invocation: null,
+  revert: null,
+  shortMessage: 'execution reverted (unknown custom error)',
+  info: {
+    error: {
+      code: 3,
+      message: 'execution reverted',
+      data: '0xb87a12a90000aa36a72301317232fe73790ce1fe7ad50c05611392d3f18034ac6b37c76700000000000000000000000026ccf45dfe05fa4940aef7e8dc60806d1e468a1d'
+    },
+    payload: {
+      method: 'eth_estimateGas',
+      params: [Array],
+      id: 86,
+      jsonrpc: '2.0'
+    }
+  }
+}

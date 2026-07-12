@@ -1,16 +1,46 @@
 import KaelisCampaignManagerAbi from './abi/KaelisCampaignManager.json';
 import KaelisTokenAbi from './abi/KaelisToken.json';
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as const;
+const ADDRESS_PATTERN = /^0x[a-fA-F0-9]{40}$/;
+
 /**
- * Deployed Sepolia addresses. Populated from deployments/sepolia.json after running
- * `npm run deploy:sepolia` from the project root -- update these once real addresses
- * exist. Left as placeholders pre-deployment; the app should treat a zero address as
- * "not yet deployed" and show an empty state rather than attempting reads against it.
+ * Reads a contract address from a NEXT_PUBLIC_* env var. These are inlined into the
+ * client bundle at build time by Next.js -- set them in Vercel's Project Settings ->
+ * Environment Variables (or in a local, gitignored .env.local for local dev), not in
+ * a committed file, since NEXT_PUBLIC_* vars ship to the browser (they're addresses,
+ * not secrets, so that's fine -- private keys must never use this prefix).
+ *
+ * Falls back to the zero address (treated by the app as "not yet deployed" --
+ * see useDashboardStats.ts / useRecentCampaigns.ts's isDeployed checks) rather than
+ * throwing, so local dev without a .env.local still boots to a working empty state
+ * instead of a hard crash.
  */
+function readContractAddress(envVarName: string, envValue: string | undefined): `0x${string}` {
+  if (!envValue) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(
+        `[kaelis] ${envVarName} is not set -- falling back to the zero address. ` +
+          `Set it in frontend/.env.local (see .env.local.example) to point the app at your deployed contracts.`
+      );
+    }
+    return ZERO_ADDRESS;
+  }
+  if (!ADDRESS_PATTERN.test(envValue)) {
+    throw new Error(`[kaelis] ${envVarName} is set but is not a valid Ethereum address: "${envValue}"`);
+  }
+  return envValue as `0x${string}`;
+}
+
 export const CONTRACTS = {
-  // TODO: replace after `npm run deploy:sepolia` -- copy from deployments/sepolia.json
-  KaelisToken: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-  KaelisCampaignManager: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+  KaelisToken: readContractAddress(
+    'NEXT_PUBLIC_KAELIS_TOKEN_ADDRESS',
+    process.env.NEXT_PUBLIC_KAELIS_TOKEN_ADDRESS
+  ),
+  KaelisCampaignManager: readContractAddress(
+    'NEXT_PUBLIC_CAMPAIGN_MANAGER_ADDRESS',
+    process.env.NEXT_PUBLIC_CAMPAIGN_MANAGER_ADDRESS
+  ),
 } as const;
 
 export const SEPOLIA_CHAIN_ID = 11155111;

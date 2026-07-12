@@ -6,19 +6,19 @@ import { ConnectWalletButton } from '../components/ConnectWalletButton';
 
 const SLIDES = [
   {
-    // Dark circuit board close-up (Pexels, TimSon Foox)
-    src: 'https://images.pexels.com/photos/2182863/pexels-photo-2182863.jpeg?auto=compress&cs=tinysrgb&w=1920',
-    alt: 'Close-up of a dark circuit board',
+    // Blue-lit illuminated server rack, close-up (Pexels, panumas nikhomkhai)
+    src: 'https://images.pexels.com/photos/17489160/pexels-photo-17489160.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    alt: 'Illuminated server rack in a modern data center',
   },
   {
-    // Blue-lit server room (Pexels, panumas nikhomkhai)
+    // Blue-lit server room, wide shot (Pexels, panumas nikhomkhai)
     src: 'https://images.pexels.com/photos/17323801/pexels-photo-17323801.jpeg?auto=compress&cs=tinysrgb&w=1920',
     alt: 'Modern server room with blue illumination',
   },
   {
-    // Green matrix / binary code (Pexels, Markus Spiske)
-    src: 'https://images.pexels.com/photos/1089438/pexels-photo-1089438.jpeg?auto=compress&cs=tinysrgb&w=1920',
-    alt: 'Abstract matrix code background',
+    // Moody black server racks, network infrastructure (Pexels, Brett Sayles)
+    src: 'https://images.pexels.com/photos/5203849/pexels-photo-5203849.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    alt: 'Rows of network server racks in a data center',
   },
 ];
 
@@ -107,4 +107,4 @@ function ChipMark() {
       <path d="M8 7v6M8 10l3-3M8.6 10.2 11 13" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
-      }
+                    }

@@ -34,7 +34,12 @@
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center;
+  /* Favor the upper-middle of the source photo rather than dead-center: these are
+     landscape-oriented data-center shots, and a strict center crop on a tall mobile
+     viewport pushes the most detailed/textured part of the frame out of view,
+     leaving a duller, flatter-looking band at the top -- which is what was being
+     reported as "bad space" even though technically the photo was rendering. */
+  background-position: center 25%;
   opacity: 0;
   transition: opacity 1.2s ease;
 }
@@ -46,11 +51,16 @@
 .kaelis-hero-v2__overlay {
   position: absolute;
   inset: 0;
+  /* Rebalanced so the top of the frame stays closer to the photo's true tone
+     instead of being darkened the most -- the old gradient was heaviest at 0%,
+     which is exactly the region that was reading as empty/flat space. Darkening
+     now ramps up toward the bottom, where it's doing real work (contrast for the
+     heading/subtitle) rather than just muddying the top edge. */
   background: linear-gradient(
     180deg,
-    rgba(10, 10, 10, 0.55) 0%,
-    rgba(10, 10, 10, 0.45) 40%,
-    rgba(10, 10, 10, 0.75) 100%
+    rgba(10, 10, 10, 0.25) 0%,
+    rgba(10, 10, 10, 0.3) 35%,
+    rgba(10, 10, 10, 0.78) 100%
   );
 }
 
@@ -517,5 +527,5 @@
   .kaelis-hero-v2__actions .kaelis-btn {
     width: 100%;
   }
-                   }
-    
+             }
+                         

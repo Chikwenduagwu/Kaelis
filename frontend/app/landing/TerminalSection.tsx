@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { TERMINAL_LINES } from './terminalLines';
 
-const TYPING_SPEED_MS = 28;
-const LINE_PAUSE_MS = 550;
-const MAX_VISIBLE_LINES = 9;
+const TYPING_SPEED_MS = 26;
+const LINE_PAUSE_MS = 500;
 
 interface RenderedLine {
   text: string;
@@ -15,15 +14,13 @@ interface RenderedLine {
 
 export function TerminalSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [renderedLines, setRenderedLines] = useState<RenderedLine[]>([]);
   const lineIndexRef = useRef(0);
   const charIndexRef = useRef(0);
 
-  // Start the typing loop only once the section actually scrolls into view, rather
-  // than tying animation progress to scroll position -- this is what makes the
-  // section behave consistently across viewport heights instead of the previous
-  // scroll-fraction-linked pin, which broke on short mobile screens.
+  // Start the typing loop only once the section actually scrolls into view.
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -53,13 +50,17 @@ export function TerminalSection() {
         const partial = currentLine.slice(0, charIndexRef.current);
         const isComplete = charIndexRef.current >= currentLine.length;
 
+        // Real terminal behavior: once a line is complete it is never touched again --
+        // it stays in place permanently and the next character starts a brand new
+        // line entry below it, rather than sliding a fixed window of "last N lines"
+        // and discarding earlier ones.
         if (next.length > 0 && !next[next.length - 1].complete) {
           next[next.length - 1] = { text: partial, complete: isComplete };
         } else {
           next.push({ text: partial, complete: isComplete });
         }
 
-        return next.slice(-MAX_VISIBLE_LINES);
+        return next;
       });
 
       if (charIndexRef.current >= currentLine.length) {
@@ -75,6 +76,15 @@ export function TerminalSection() {
     return () => clearTimeout(timeoutId);
   }, [hasStarted]);
 
+  // Auto-scroll to the bottom as new lines are appended, so the terminal body
+  // behaves like a real scrolling log rather than clipping overflow.
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (body) {
+      body.scrollTop = body.scrollHeight;
+    }
+  }, [renderedLines]);
+
   return (
     <section className="kaelis-terminal-section" ref={sectionRef}>
       <div className="kaelis-terminal">
@@ -83,9 +93,9 @@ export function TerminalSection() {
           <span className="kaelis-terminal__dot kaelis-terminal__dot--yellow" />
           <span className="kaelis-terminal__dot kaelis-terminal__dot--green" />
         </div>
-        <div className="kaelis-terminal__body" role="log" aria-live="polite">
+        <div className="kaelis-terminal__body" role="log" aria-live="polite" ref={bodyRef}>
           {renderedLines.map((line, i) => (
-            <div className="kaelis-terminal__line" key={i}>
+            <div className="kaelis-terminal__line kaelis-terminal__line--prompt" key={i}>
               {line.text}
               {i === renderedLines.length - 1 && (
                 <span className="kaelis-terminal__cursor" aria-hidden />
@@ -99,5 +109,4 @@ export function TerminalSection() {
       </Link>
     </section>
   );
-  }
-        
+            }

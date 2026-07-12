@@ -3,219 +3,260 @@
   overflow-x: hidden;
 }
 
-/* ==================== HERO v2 (photo carousel) ==================== */
-/* Fix: sized with a vh fallback first (universal support), then overridden by svh
-   ("small viewport height" -- guaranteed to never exceed the visible area even
-   before mobile browser chrome collapses, unlike dvh which some WebViews resolve
-   inconsistently on first paint). An explicit dark background-color is set directly
-   on the section (not just the image) so there is never a blank/mismatched-color
-   gap while the background photo is still loading in. */
-.kaelis-hero-v2 {
-  position: relative;
+/* ==================== HERO v3 (white bg, vault illustration) ==================== */
+.kaelis-hero-v3 {
   width: 100%;
-  height: 100vh;
-  height: 100svh;
-  min-height: 560px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  overflow: hidden;
-  color: white;
-  background: #0a0a0a;
+  min-height: 100vh;
+  min-height: 100svh;
+  background: var(--kaelis-bg);
+  padding-bottom: 40px;
 }
 
-.kaelis-hero-v2__slides {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.kaelis-hero-v2__slide {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  /* Favor the upper-middle of the source photo rather than dead-center: these are
-     landscape-oriented data-center shots, and a strict center crop on a tall mobile
-     viewport pushes the most detailed/textured part of the frame out of view,
-     leaving a duller, flatter-looking band at the top -- which is what was being
-     reported as "bad space" even though technically the photo was rendering. */
-  background-position: center 25%;
-  opacity: 0;
-  transition: opacity 1.2s ease;
-}
-
-.kaelis-hero-v2__slide--active {
-  opacity: 1;
-}
-
-.kaelis-hero-v2__overlay {
-  position: absolute;
-  inset: 0;
-  /* Rebalanced so the top of the frame stays closer to the photo's true tone
-     instead of being darkened the most -- the old gradient was heaviest at 0%,
-     which is exactly the region that was reading as empty/flat space. Darkening
-     now ramps up toward the bottom, where it's doing real work (contrast for the
-     heading/subtitle) rather than just muddying the top edge. */
-  background: linear-gradient(
-    180deg,
-    rgba(10, 10, 10, 0.25) 0%,
-    rgba(10, 10, 10, 0.3) 35%,
-    rgba(10, 10, 10, 0.78) 100%
-  );
-}
-
-/* ---------- Nav (v2) ---------- */
-.kaelis-nav-v2 {
-  position: relative;
-  z-index: 20;
+/* ---------- Nav (v3) ---------- */
+.kaelis-nav-v3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 24px 40px;
-  flex-shrink: 0;
+  padding: 22px 40px;
 }
 
-.kaelis-nav-v2__brand {
+.kaelis-nav-v3__brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.05rem;
-  letter-spacing: 0.04em;
-  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 0.12em;
+  color: var(--kaelis-ink);
 }
 
-.kaelis-nav-v2__links {
+.kaelis-nav-v3__right {
   display: flex;
   align-items: center;
-  gap: 28px;
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.85);
+  gap: 14px;
 }
 
-.kaelis-nav-v2__links a {
-  text-decoration: none;
-  color: inherit;
-  transition: color 200ms ease;
-}
-
-.kaelis-nav-v2__links a:hover {
-  color: white;
-}
-
-.kaelis-nav-v2__cta {
-  padding: 9px 18px;
+.kaelis-nav-v3__menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-control);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: white;
-  font-weight: 500;
-  transition: border-color 200ms ease, background 200ms ease;
+  border: 1px solid var(--kaelis-line);
+  background: transparent;
 }
 
-.kaelis-nav-v2__cta:hover {
-  border-color: var(--kaelis-gold-bright);
-  background: rgba(212, 175, 106, 0.15);
-}
-
-/* ---------- Hero content ---------- */
-.kaelis-hero-v2__content {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 40px 24px 56px;
-  max-width: 760px;
+/* ---------- Hero copy ---------- */
+.kaelis-hero-v3__body {
+  padding: 8px 40px 0;
+  max-width: 1280px;
   margin: 0 auto;
+}
+
+.kaelis-hero-v3__copy {
+  max-width: 620px;
 }
 
 .kaelis-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
   border: 1px solid var(--kaelis-gold);
   color: var(--kaelis-gold);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   width: fit-content;
+  margin-bottom: 24px;
 }
 
-.kaelis-eyebrow--dark {
-  border-color: var(--kaelis-gold-bright);
-  color: var(--kaelis-gold-bright);
-}
-
-.kaelis-hero-v2__title {
+.kaelis-hero-v3__title {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(2.4rem, 8vw, 4.4rem);
-  line-height: 1.02;
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  line-height: 1.05;
   letter-spacing: -0.01em;
-  text-transform: uppercase;
-  margin: 20px 0 18px;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  color: var(--kaelis-ink);
+  margin: 0 0 22px;
 }
 
-.kaelis-hero-v2__title--accent {
-  color: var(--kaelis-gold-bright);
+.kaelis-hero-v3__title--accent {
+  color: var(--kaelis-gold);
 }
 
-.kaelis-hero-v2__subtitle {
+.kaelis-hero-v3__subtitle {
   font-size: 1.05rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.88);
-  max-width: 520px;
+  line-height: 1.65;
+  color: var(--kaelis-ink-soft);
+  max-width: 480px;
   margin: 0 0 32px;
 }
 
-.kaelis-hero-v2__actions {
+.kaelis-hero-v3__actions {
   display: flex;
   gap: 14px;
-  justify-content: center;
   flex-wrap: wrap;
 }
 
-.kaelis-btn--outline-light {
-  background: transparent;
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.kaelis-btn--outline-light:hover {
-  border-color: white;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* ---------- Carousel dots ---------- */
-.kaelis-hero-v2__dots {
+/* ---------- Vault stage ---------- */
+.kaelis-vault-stage {
   position: relative;
-  z-index: 10;
+  width: 100%;
+  max-width: 900px;
+  margin: 56px auto 0;
+  padding: 0 24px;
   display: flex;
+  align-items: center;
   justify-content: center;
+}
+
+.kaelis-vault-svg {
+  width: min(420px, 70vw);
+  height: auto;
+  animation: kaelis-vault-float 5s ease-in-out infinite;
+}
+
+@keyframes kaelis-vault-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.kaelis-vault-connectors {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.kaelis-vault-tags {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.kaelis-vault-tags--left {
+  left: 0;
+  top: 8%;
+}
+
+.kaelis-vault-tags--right {
+  right: 0;
+  top: 42%;
+}
+
+.kaelis-vault-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--kaelis-bg);
+  border: 1px solid var(--kaelis-line);
+  box-shadow: var(--shadow-soft);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--kaelis-ink);
+  white-space: nowrap;
+  animation: kaelis-tag-float 4s ease-in-out infinite;
+}
+
+@keyframes kaelis-tag-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.kaelis-vault-tag--verified {
+  border-radius: var(--radius-control);
+  align-items: flex-start;
+  padding: 12px 18px;
+}
+
+.kaelis-vault-tag__title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.kaelis-vault-tag__subtitle {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--kaelis-ink-faint);
+}
+
+/* ---------- Tagline ---------- */
+.kaelis-hero-v3__tagline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  margin: 64px auto 40px;
+}
+
+.kaelis-hero-v3__tagline-small {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--kaelis-gold);
+}
+
+.kaelis-hero-v3__tagline-large {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--kaelis-ink);
+}
+
+.kaelis-hero-v3__tagline-rule {
+  width: 40px;
+  height: 2px;
+  background: var(--kaelis-gold);
+  margin-top: 10px;
+}
+
+/* ---------- Feature strip ---------- */
+.kaelis-hero-v3__strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  background: var(--kaelis-surface);
+  border: 1px solid var(--kaelis-line);
+  border-radius: var(--radius-card);
+}
+
+.kaelis-hero-v3__strip-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
-  padding-bottom: 28px;
-}
-
-.kaelis-hero-v2__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.4);
-  padding: 0;
-  min-height: 0;
-  transition: background 200ms ease, transform 200ms ease;
-}
-
-.kaelis-hero-v2__dot--active {
-  background: var(--kaelis-gold-bright);
-  transform: scale(1.3);
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--kaelis-ink);
 }
 
 /* ==================== Buttons (shared) ==================== */
@@ -223,6 +264,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   min-height: 48px;
   padding: 0 26px;
   border-radius: var(--radius-control);
@@ -265,21 +307,20 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 18px;
+  padding: 9px 20px;
   border-radius: var(--radius-control);
   border: none;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--kaelis-gold);
   color: white;
   font-size: 0.88rem;
   font-weight: 500;
   font-family: var(--font-body);
   min-height: 44px;
   transition: background 200ms ease, transform 150ms ease;
-  backdrop-filter: blur(6px);
 }
 
 .kaelis-connect-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--kaelis-gold-bright);
 }
 
 .kaelis-connect-btn:disabled {
@@ -288,9 +329,9 @@
 }
 
 .kaelis-connect-btn--connected {
-  background: rgba(212, 175, 106, 0.22);
-  color: white;
-  border: 1px solid var(--kaelis-gold-bright);
+  background: var(--kaelis-gold-wash);
+  color: var(--kaelis-ink);
+  border: 1px solid var(--kaelis-gold);
 }
 
 .kaelis-connect-dot {
@@ -300,6 +341,7 @@
   background: var(--kaelis-success);
   display: inline-block;
 }
+
 
 /* ==================== Terminal section ==================== */
 /* Fix: same vh->svh sizing pattern as hero, for the same robustness reasons. */
@@ -466,24 +508,16 @@
 }
 
 @media (max-width: 768px) {
-  .kaelis-nav-v2 {
+  .kaelis-nav-v3 {
     padding: 16px 16px;
   }
 
-  .kaelis-nav-v2__brand span {
-    font-size: 0.95rem;
+  .kaelis-nav-v3__brand span {
+    font-size: 1rem;
   }
 
-  .kaelis-nav-v2__links {
-    gap: 10px;
-  }
-
-  /* Only the wallet connector remains in the mobile nav -- Launch App is redundant
-     here since both the hero and terminal sections already carry a full-size Launch
-     App button, and keeping every link at full size on a narrow screen is what
-     caused the cramped/overlapping look in the reported screenshot. */
-  .kaelis-nav-v2__links a {
-    display: none;
+  .kaelis-nav-v3__menu {
+    display: flex;
   }
 
   .kaelis-connect-btn {
@@ -492,12 +526,58 @@
     min-height: 40px;
   }
 
-  .kaelis-hero-v2__content {
-    padding: 0 20px 40px;
+  .kaelis-hero-v3__body {
+    padding: 8px 20px 0;
   }
 
-  .kaelis-hero-v2__title {
+  .kaelis-hero-v3__title {
     font-size: clamp(2.1rem, 9vw, 2.8rem);
+  }
+
+  .kaelis-hero-v3__actions {
+    width: 100%;
+  }
+
+  .kaelis-hero-v3__actions .kaelis-btn {
+    flex: 1;
+  }
+
+  /* On narrow screens the floating absolute-positioned tags would overlap a vault
+     illustration that's already scaled down -- switch to a simple centered wrap of
+     static chips below the vault instead, and hide the connector line svg (it's
+     drawn for the wide desktop layout's specific tag positions). */
+  .kaelis-vault-stage {
+    flex-direction: column;
+    margin-top: 32px;
+  }
+
+  .kaelis-vault-connectors {
+    display: none;
+  }
+
+  .kaelis-vault-tags {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .kaelis-vault-tags--right {
+    margin-top: 10px;
+  }
+
+  .kaelis-vault-tag {
+    animation: none;
+  }
+
+  .kaelis-hero-v3__tagline {
+    margin: 44px auto 32px;
+  }
+
+  .kaelis-hero-v3__strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 12px;
   }
 
   .kaelis-terminal {
@@ -519,13 +599,8 @@
 }
 
 @media (max-width: 375px) {
-  .kaelis-hero-v2__actions {
+  .kaelis-hero-v3__actions {
     flex-direction: column;
-    width: 100%;
   }
-
-  .kaelis-hero-v2__actions .kaelis-btn {
-    width: 100%;
   }
-             }
-                         
+  

@@ -215,8 +215,37 @@
 }
 
 /* ---------- Activity chart ---------- */
+/* Full-bleed: breaks out of .kaelis-page's horizontal padding (32px desktop / 20px
+   mobile -- see the padding values on .kaelis-page and its responsive overrides
+   below) using equal negative margins, so the chart genuinely spans the full
+   viewport width edge-to-edge with square corners and no card border, rather than
+   being another inset, rounded, bordered card like the stat tiles above it. */
 .kaelis-activity-chart {
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
   margin-bottom: 24px;
+  background: var(--kaelis-surface-raised);
+  border-top: 1px solid var(--kaelis-line);
+  border-bottom: 1px solid var(--kaelis-line);
+  border-radius: 0;
+  padding: 20px 40px 16px;
+}
+
+.kaelis-activity-chart__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.kaelis-activity-chart__header h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
 }
 
 .kaelis-activity-chart__legend {
@@ -341,6 +370,7 @@
 .kaelis-stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  align-items: stretch;
   gap: 20px;
   margin-bottom: 32px;
 }
@@ -354,6 +384,7 @@
   flex-direction: column;
   gap: 14px;
   box-shadow: var(--shadow-soft);
+  height: 100%;
 }
 
 .kaelis-stat-card__top {
@@ -407,6 +438,15 @@
 .kaelis-stat-card__label {
   font-size: 0.8rem;
   color: var(--kaelis-ink-soft);
+  line-height: 1.3;
+  /* Reserves space for 2 lines (0.8rem * 1.3 * 2) so a short one-line label like
+     "Total Recipients" and a wrapping two-line one like "Total Distributions" take
+     up exactly the same vertical space -- otherwise the value/sublabel below shift
+     up or down between cards and the grid stops looking uniform even though the
+     cards are technically the same width. */
+  min-height: calc(0.8rem * 1.3 * 2);
+  display: flex;
+  align-items: flex-start;
 }
 
 .kaelis-stat-card__value {
@@ -684,6 +724,14 @@
     padding-right: 20px;
   }
 
+  .kaelis-activity-chart {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
   .kaelis-stat-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
@@ -722,4 +770,4 @@
   .kaelis-app-shell__content {
     padding-bottom: 70px;
   }
-  }
+}

@@ -7,26 +7,26 @@ const NAV_SECTIONS = [
   {
     label: 'Confidential Operations',
     items: [
-      { href: '/app', label: 'Dashboard', icon: 'dashboard' },
-      { href: '/app/distributions', label: 'Distributions', icon: 'distributions' },
-      { href: '/app/claims', label: 'Claims', icon: 'claims' },
-      { href: '/app/vesting', label: 'Vesting', icon: 'vesting' },
-      { href: '/app/payroll', label: 'Payroll', icon: 'payroll' },
-      { href: '/app/grants', label: 'Grants', icon: 'grants' },
+      { href: '/app', label: 'Dashboard', icon: 'dashboard', comingSoon: false },
+      { href: '/app/distributions', label: 'Distributions', icon: 'distributions', comingSoon: false },
+      { href: '/app/claims', label: 'Claims', icon: 'claims', comingSoon: false },
+      { href: '/app/vesting', label: 'Vesting', icon: 'vesting', comingSoon: true },
+      { href: '/app/payroll', label: 'Payroll', icon: 'payroll', comingSoon: true },
+      { href: '/app/grants', label: 'Grants', icon: 'grants', comingSoon: true },
     ],
   },
   {
     label: 'Analytics',
     items: [
-      { href: '/app/overview', label: 'Overview', icon: 'overview' },
-      { href: '/app/reports', label: 'Reports', icon: 'reports' },
+      { href: '/app/overview', label: 'Overview', icon: 'overview', comingSoon: true },
+      { href: '/app/reports', label: 'Reports', icon: 'reports', comingSoon: true },
     ],
   },
   {
     label: 'Settings',
     items: [
-      { href: '/app/team', label: 'Team', icon: 'team' },
-      { href: '/app/settings', label: 'Settings', icon: 'settings' },
+      { href: '/app/team', label: 'Team', icon: 'team', comingSoon: true },
+      { href: '/app/settings', label: 'Settings', icon: 'settings', comingSoon: true },
     ],
   },
 ];
@@ -46,6 +46,20 @@ export function Sidebar() {
           <div className="kaelis-sidebar__section" key={section.label}>
             <span className="kaelis-sidebar__section-label">{section.label}</span>
             {section.items.map((item) => {
+              if (item.comingSoon) {
+                return (
+                  <div
+                    key={item.href}
+                    className="kaelis-sidebar__link kaelis-sidebar__link--disabled"
+                    aria-disabled="true"
+                  >
+                    <NavIcon name={item.icon} />
+                    {item.label}
+                    <span className="kaelis-coming-soon-badge">Coming soon</span>
+                  </div>
+                );
+              }
+
               const isActive = pathname === item.href;
               return (
                 <Link
@@ -96,4 +110,5 @@ function NavIcon({ name }: { name: string }) {
       <path d={paths[name] ?? paths.dashboard} stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-}
+    }
+                    

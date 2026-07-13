@@ -247,54 +247,10 @@
   background: var(--kaelis-success);
 }
 
-.kaelis-activity-chart__bars {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 12px 0;
-}
-
-.kaelis-activity-chart__bar-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.kaelis-activity-chart__bar-label {
-  width: 110px;
-  flex-shrink: 0;
-  font-size: 0.84rem;
-  color: var(--kaelis-ink-soft);
-}
-
-.kaelis-activity-chart__bar-track {
-  flex: 1;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--kaelis-surface);
-  overflow: hidden;
-}
-
-.kaelis-activity-chart__bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 600ms ease;
-}
-
-.kaelis-activity-chart__bar-fill--gold {
-  background: var(--kaelis-gold);
-}
-
-.kaelis-activity-chart__bar-fill--green {
-  background: var(--kaelis-success);
-}
-
-.kaelis-activity-chart__bar-value {
-  width: 32px;
-  flex-shrink: 0;
-  text-align: right;
-  font-weight: 600;
-  font-size: 0.9rem;
+.kaelis-activity-chart__svg {
+  width: 100%;
+  height: 200px;
+  display: block;
 }
 
 .kaelis-activity-chart__footnote {
@@ -729,7 +685,8 @@
   }
 
   .kaelis-stat-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
   .kaelis-dashboard-header {
@@ -765,4 +722,4 @@
   .kaelis-app-shell__content {
     padding-bottom: 70px;
   }
-}
+  }

@@ -156,8 +156,153 @@
 
 .kaelis-page__subtitle {
   color: var(--kaelis-ink-soft);
-  margin: -8px 0 28px;
+  margin: 0;
   font-size: 0.95rem;
+}
+
+/* ---------- Dashboard header ---------- */
+.kaelis-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.kaelis-dashboard-header__greeting {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--kaelis-ink-soft);
+  margin-bottom: 6px;
+}
+
+.kaelis-dashboard-header__title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.kaelis-dashboard-header__illustration {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+}
+
+.kaelis-dashboard-header__illustration .kaelis-vault-svg {
+  width: 100%;
+  height: 100%;
+  animation: none;
+}
+
+/* ---------- Privacy banner ---------- */
+.kaelis-privacy-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: var(--radius-control);
+  background: var(--kaelis-gold-wash);
+  border: 1px solid var(--kaelis-gold);
+  font-size: 0.86rem;
+  color: var(--kaelis-ink);
+  margin-bottom: 24px;
+  cursor: pointer;
+}
+
+.kaelis-privacy-banner span {
+  flex: 1;
+}
+
+/* ---------- Activity chart ---------- */
+.kaelis-activity-chart {
+  margin-bottom: 24px;
+}
+
+.kaelis-activity-chart__legend {
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-activity-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kaelis-activity-chart__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.kaelis-activity-chart__dot--gold {
+  background: var(--kaelis-gold);
+}
+
+.kaelis-activity-chart__dot--green {
+  background: var(--kaelis-success);
+}
+
+.kaelis-activity-chart__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 12px 0;
+}
+
+.kaelis-activity-chart__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kaelis-activity-chart__bar-label {
+  width: 110px;
+  flex-shrink: 0;
+  font-size: 0.84rem;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-activity-chart__bar-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--kaelis-surface);
+  overflow: hidden;
+}
+
+.kaelis-activity-chart__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 600ms ease;
+}
+
+.kaelis-activity-chart__bar-fill--gold {
+  background: var(--kaelis-gold);
+}
+
+.kaelis-activity-chart__bar-fill--green {
+  background: var(--kaelis-success);
+}
+
+.kaelis-activity-chart__bar-value {
+  width: 32px;
+  flex-shrink: 0;
+  text-align: right;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.kaelis-activity-chart__footnote {
+  display: block;
+  text-align: center;
+  font-size: 0.76rem;
+  color: var(--kaelis-ink-faint);
+  margin-top: 8px;
 }
 
 /* ---------- Banners ---------- */
@@ -248,11 +393,17 @@
   background: var(--kaelis-surface-raised);
   border: 1px solid var(--kaelis-line);
   border-radius: var(--radius-card);
-  padding: 22px;
+  padding: 20px;
   display: flex;
-  gap: 16px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 14px;
   box-shadow: var(--shadow-soft);
+}
+
+.kaelis-stat-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .kaelis-stat-card__icon {
@@ -264,6 +415,31 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.kaelis-stat-card__badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kaelis-stat-card__badge--trend-up {
+  background: #e8f5ee;
+  color: var(--kaelis-success);
+}
+
+.kaelis-stat-card__badge--active-dot {
+  background: #e8f5ee;
+  color: var(--kaelis-success);
+}
+
+.kaelis-stat-card__badge--hidden {
+  background: #eeeaf7;
+  color: #8a6fd1;
 }
 
 .kaelis-stat-card__body {
@@ -280,7 +456,7 @@
 .kaelis-stat-card__value {
   font-family: var(--font-display);
   font-size: 1.7rem;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .kaelis-stat-card__sublabel {
@@ -348,7 +524,7 @@
 .kaelis-campaign-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 14px;
   padding: 14px 4px;
   border-bottom: 1px solid var(--kaelis-line);
   font-size: 0.9rem;
@@ -358,14 +534,33 @@
   border-bottom: none;
 }
 
+.kaelis-campaign-row__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--kaelis-gold-wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kaelis-campaign-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
 .kaelis-campaign-row__id {
   font-weight: 500;
-  margin-right: 10px;
 }
 
 .kaelis-campaign-row__recipients {
   color: var(--kaelis-ink-soft);
   font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 .kaelis-tag {
@@ -537,6 +732,23 @@
     grid-template-columns: 1fr;
   }
 
+  .kaelis-dashboard-header {
+    gap: 12px;
+  }
+
+  .kaelis-dashboard-header__title {
+    font-size: 1.5rem;
+  }
+
+  .kaelis-dashboard-header__illustration {
+    width: 64px;
+    height: 64px;
+  }
+
+  .kaelis-privacy-banner {
+    font-size: 0.8rem;
+  }
+
   .kaelis-bottom-nav {
     display: flex;
     position: fixed;
@@ -553,5 +765,4 @@
   .kaelis-app-shell__content {
     padding-bottom: 70px;
   }
-  }
-                  
+}

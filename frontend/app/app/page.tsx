@@ -9,7 +9,7 @@ import { useRecentCampaigns } from './dashboard/useRecentCampaigns';
 
 export default function DashboardPage() {
   const { isConnected } = useAccount();
-  const { campaignCount, claimCount, activeCampaignCount, isLoading, isDeployed, error } =
+  const { campaignCount, recipientCount, activeCampaignCount, isLoading, isDeployed, error } =
     useDashboardStats();
   const { campaigns, isLoading: campaignsLoading } = useRecentCampaigns();
 
@@ -44,9 +44,9 @@ export default function DashboardPage() {
             isLoading={isLoading}
           />
           <StatCard
-            label="Total Claims"
-            value={claimCount.toLocaleString()}
-            sublabel="All time"
+            label="Total Recipients"
+            value={recipientCount.toLocaleString()}
+            sublabel="Across all campaigns"
             icon="claimed"
             isLoading={isLoading}
           />

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePublicClient, useAccount } from 'wagmi';
 import { CONTRACTS } from '../../../lib/contracts';
+import { getLogsChunked } from '../../../lib/getLogsChunked';
 
 export interface DashboardStats {
   campaignCount: number;
@@ -78,23 +79,17 @@ export function useDashboardStats(): DashboardStats {
       setError(null);
       try {
         const [createdLogs, claimedLogs, statusLogs] = await Promise.all([
-          publicClient!.getLogs({
+          getLogsChunked(publicClient!, {
             address: CONTRACTS.KaelisCampaignManager,
             event: CAMPAIGN_CREATED_EVENT,
-            fromBlock: 'earliest',
-            toBlock: 'latest',
           }),
-          publicClient!.getLogs({
+          getLogsChunked(publicClient!, {
             address: CONTRACTS.KaelisCampaignManager,
             event: CLAIMED_EVENT,
-            fromBlock: 'earliest',
-            toBlock: 'latest',
           }),
-          publicClient!.getLogs({
+          getLogsChunked(publicClient!, {
             address: CONTRACTS.KaelisCampaignManager,
             event: CAMPAIGN_STATUS_CHANGED_EVENT,
-            fromBlock: 'earliest',
-            toBlock: 'latest',
           }),
         ]);
 
@@ -134,4 +129,4 @@ export function useDashboardStats(): DashboardStats {
   }, [publicClient, chain?.id, isDeployed]);
 
   return { ...stats, isLoading, error, isDeployed };
-}
+          }

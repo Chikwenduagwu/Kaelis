@@ -72,6 +72,28 @@
   font-weight: 500;
 }
 
+.kaelis-sidebar__link--disabled {
+  color: var(--kaelis-ink-faint);
+  cursor: default;
+  justify-content: space-between;
+}
+
+.kaelis-sidebar__link--disabled:hover {
+  background: transparent;
+}
+
+.kaelis-coming-soon-badge {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--kaelis-ink-faint);
+  background: var(--kaelis-surface);
+  border: 1px solid var(--kaelis-line);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
 /* ---------- Content area ---------- */
 .kaelis-app-shell__content {
   flex: 1;
@@ -477,6 +499,22 @@
   color: var(--kaelis-gold);
 }
 
+.kaelis-more-sheet__item--disabled {
+  cursor: default;
+  color: var(--kaelis-ink-faint);
+  position: relative;
+}
+
+.kaelis-more-sheet__item--disabled svg {
+  color: var(--kaelis-ink-faint);
+}
+
+.kaelis-more-sheet__item--disabled .kaelis-coming-soon-badge {
+  font-size: 0.58rem;
+  padding: 1px 6px;
+  margin-top: 2px;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
   .kaelis-stat-grid {
@@ -516,4 +554,4 @@
     padding-bottom: 70px;
   }
   }
-  
+                  

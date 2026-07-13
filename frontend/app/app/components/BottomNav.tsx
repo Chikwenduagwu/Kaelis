@@ -11,13 +11,13 @@ const PRIMARY_ITEMS = [
 ];
 
 const MORE_ITEMS = [
-  { href: '/app/vesting', label: 'Vesting', icon: 'vesting' as const },
-  { href: '/app/payroll', label: 'Payroll', icon: 'payroll' as const },
-  { href: '/app/grants', label: 'Grants', icon: 'grants' as const },
-  { href: '/app/overview', label: 'Overview', icon: 'overview' as const },
-  { href: '/app/reports', label: 'Reports', icon: 'reports' as const },
-  { href: '/app/team', label: 'Team', icon: 'team' as const },
-  { href: '/app/settings', label: 'Settings', icon: 'settings' as const },
+  { href: '/app/vesting', label: 'Vesting', icon: 'vesting' as const, comingSoon: true },
+  { href: '/app/payroll', label: 'Payroll', icon: 'payroll' as const, comingSoon: true },
+  { href: '/app/grants', label: 'Grants', icon: 'grants' as const, comingSoon: true },
+  { href: '/app/overview', label: 'Overview', icon: 'overview' as const, comingSoon: true },
+  { href: '/app/reports', label: 'Reports', icon: 'reports' as const, comingSoon: true },
+  { href: '/app/team', label: 'Team', icon: 'team' as const, comingSoon: true },
+  { href: '/app/settings', label: 'Settings', icon: 'settings' as const, comingSoon: true },
 ];
 
 /**
@@ -67,17 +67,29 @@ export function BottomNav() {
           >
             <div className="kaelis-more-sheet__handle" aria-hidden />
             <div className="kaelis-more-sheet__grid">
-              {MORE_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="kaelis-more-sheet__item"
-                  onClick={() => setIsMoreOpen(false)}
-                >
-                  <NavIcon name={item.icon} />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
+              {MORE_ITEMS.map((item) =>
+                item.comingSoon ? (
+                  <div
+                    key={item.href}
+                    className="kaelis-more-sheet__item kaelis-more-sheet__item--disabled"
+                    aria-disabled="true"
+                  >
+                    <NavIcon name={item.icon} />
+                    <span>{item.label}</span>
+                    <span className="kaelis-coming-soon-badge">Coming soon</span>
+                  </div>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="kaelis-more-sheet__item"
+                    onClick={() => setIsMoreOpen(false)}
+                  >
+                    <NavIcon name={item.icon} />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              )}
             </div>
           </div>
         </div>
@@ -113,5 +125,4 @@ function NavIcon({ name }: { name: string }) {
       />
     </svg>
   );
-            }
-        
+}

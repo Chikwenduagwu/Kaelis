@@ -72,8 +72,8 @@ export function ActivityChart({ distributionCount, recipientCount, isLoading }: 
   const gridLines = [0, 0.25, 0.5, 0.75, 1];
 
   return (
-    <div className="kaelis-card kaelis-activity-chart">
-      <div className="kaelis-card__header">
+    <div className="kaelis-activity-chart">
+      <div className="kaelis-activity-chart__header">
         <h2>Distribution Activity</h2>
         <div className="kaelis-activity-chart__legend">
           <span className="kaelis-activity-chart__legend-item">
@@ -180,4 +180,4 @@ export function ActivityChart({ distributionCount, recipientCount, isLoading }: 
       <span className="kaelis-activity-chart__footnote">All time · current totals: {distributionCount} distributions, {recipientCount} recipients</span>
     </div>
   );
-}
+                                    }

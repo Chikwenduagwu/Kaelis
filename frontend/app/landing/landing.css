@@ -259,88 +259,19 @@
   color: var(--kaelis-ink);
 }
 
-/* ==================== Buttons (shared) ==================== */
-.kaelis-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 0 26px;
-  border-radius: var(--radius-control);
-  font-size: 0.95rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 200ms ease;
-}
-
-.kaelis-btn--primary {
-  background: var(--kaelis-gold);
-  color: white;
-}
-
-.kaelis-btn--primary:hover {
-  background: var(--kaelis-gold-bright);
-  transform: translateY(-1px);
-}
-
-.kaelis-btn--secondary {
-  background: transparent;
-  color: var(--kaelis-ink);
-  border: 1px solid var(--kaelis-line);
-}
-
-.kaelis-btn--secondary:hover {
-  border-color: var(--kaelis-ink);
-}
-
-.kaelis-btn--large {
-  min-height: 56px;
-  padding: 0 36px;
-  font-size: 1rem;
+/* ==================== Buttons (shared core moved to globals.css) ==================== */
+/* Landing-page-specific addition: the terminal section's "Launch App" button needs
+   extra top margin and centering that doesn't belong in the globally-shared
+   .kaelis-btn--large rule (which is also used inside dashboard pages without this
+   spacing). */
+.kaelis-terminal-section .kaelis-btn--large {
   align-self: center;
   margin-top: 28px;
 }
 
 /* ---------- Connect wallet button ---------- */
-.kaelis-connect-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 20px;
-  border-radius: var(--radius-control);
-  border: none;
-  background: var(--kaelis-gold);
-  color: white;
-  font-size: 0.88rem;
-  font-weight: 500;
-  font-family: var(--font-body);
-  min-height: 44px;
-  transition: background 200ms ease, transform 150ms ease;
-}
-
-.kaelis-connect-btn:hover:not(:disabled) {
-  background: var(--kaelis-gold-bright);
-}
-
-.kaelis-connect-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.kaelis-connect-btn--connected {
-  background: var(--kaelis-gold-wash);
-  color: var(--kaelis-ink);
-  border: 1px solid var(--kaelis-gold);
-}
-
-.kaelis-connect-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--kaelis-success);
-  display: inline-block;
-}
+/* Moved to globals.css so it applies on every page, not just the landing page --
+   see the comment there for why. */
 
 
 /* ==================== Terminal section ==================== */
@@ -518,12 +449,6 @@
 
   .kaelis-nav-v3__menu {
     display: flex;
-  }
-
-  .kaelis-connect-btn {
-    padding: 8px 14px;
-    font-size: 0.82rem;
-    min-height: 40px;
   }
 
   .kaelis-hero-v3__body {

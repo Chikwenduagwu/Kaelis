@@ -162,6 +162,58 @@
   border-color: var(--kaelis-danger);
 }
 
+/* ---------- Network mismatch banner ---------- */
+.kaelis-network-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px 24px;
+  background: #fdf3e3;
+  border-bottom: 1px solid var(--kaelis-warning);
+}
+
+.kaelis-network-banner__text {
+  font-size: 0.88rem;
+  color: var(--kaelis-ink);
+  flex: 1;
+  min-width: 200px;
+}
+
+.kaelis-network-banner__text strong {
+  color: var(--kaelis-warning);
+}
+
+.kaelis-network-banner__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: var(--radius-control);
+  border: none;
+  background: var(--kaelis-warning);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: opacity 150ms ease;
+}
+
+.kaelis-network-banner__button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.kaelis-network-banner__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.kaelis-network-banner__error {
+  width: 100%;
+  font-size: 0.8rem;
+  color: var(--kaelis-danger);
+}
+
 /* ---------- Stat grid ---------- */
 .kaelis-stat-grid {
   display: grid;
@@ -394,4 +446,5 @@
   .kaelis-app-shell__content {
     padding-bottom: 70px;
   }
-}
+  }
+  

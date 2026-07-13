@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
 import type { Abi } from 'viem';
+import { decodeNoxError } from './decodeNoxError';
 
 export type TxStatus = 'idle' | 'signing' | 'pending' | 'success' | 'error';
 
@@ -44,7 +45,10 @@ export function useContractTransaction() {
       } catch (error: any) {
         setStatus('error');
         const message: string = error?.shortMessage || error?.message || 'Transaction failed.';
-        if (message.toLowerCase().includes('user rejected') || message.toLowerCase().includes('denied')) {
+        const noxMessage = decodeNoxError(error);
+        if (noxMessage) {
+          setErrorMessage(noxMessage);
+        } else if (message.toLowerCase().includes('user rejected') || message.toLowerCase().includes('denied')) {
           setErrorMessage('You rejected the transaction in your wallet.');
         } else {
           setErrorMessage(message);

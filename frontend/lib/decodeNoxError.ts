@@ -18,6 +18,9 @@ const KNOWN_NOX_ERRORS: Record<string, string> = {
     'This wallet is not authorized to use this encrypted amount ' +
     '(ERC7984UnauthorizedUseOfEncryptedAmount).',
   '0x5ff91cdc': 'This account has no confidential token balance yet (ERC7984ZeroBalance).',
+  '0x118cdaa7':
+    'Only the token owner (the wallet that deployed KaelisToken) can mint new tokens ' +
+    '(OwnableUnauthorizedAccount). Connect the deployer wallet to fund a campaign pool.',
 };
 
 /**

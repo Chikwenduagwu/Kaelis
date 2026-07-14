@@ -7,28 +7,31 @@ interface StatCardProps {
   badge?: 'trend-up' | 'active-dot' | 'hidden';
 }
 
+/**
+ * Collapsed, full-width row layout (icon left, label/value stacked center, badge
+ * right) instead of a boxed grid tile -- each stat spans the full page width as its
+ * own row in a stacked list, per the "collapsed version, 100% width" direction.
+ */
 export function StatCard({ label, value, sublabel, icon, isLoading, badge }: StatCardProps) {
   return (
-    <div className="kaelis-stat-card">
-      <div className="kaelis-stat-card__top">
-        <div className="kaelis-stat-card__icon">
-          <StatIcon name={icon} />
-        </div>
-        {badge && (
-          <div className={`kaelis-stat-card__badge kaelis-stat-card__badge--${badge}`}>
-            <BadgeIcon name={badge} />
-          </div>
-        )}
+    <div className="kaelis-stat-row">
+      <div className="kaelis-stat-row__icon">
+        <StatIcon name={icon} />
       </div>
-      <div className="kaelis-stat-card__body">
-        <span className="kaelis-stat-card__label">{label}</span>
+      <div className="kaelis-stat-row__body">
+        <span className="kaelis-stat-row__label">{label}</span>
         {isLoading ? (
-          <span className="kaelis-stat-card__skeleton" aria-label="Loading" />
+          <span className="kaelis-stat-row__skeleton" aria-label="Loading" />
         ) : (
-          <span className="kaelis-stat-card__value">{value}</span>
+          <span className="kaelis-stat-row__value">{value}</span>
         )}
-        <span className="kaelis-stat-card__sublabel">{sublabel}</span>
+        <span className="kaelis-stat-row__sublabel">{sublabel}</span>
       </div>
+      {badge && (
+        <div className={`kaelis-stat-row__badge kaelis-stat-row__badge--${badge}`}>
+          <BadgeIcon name={badge} />
+        </div>
+      )}
     </div>
   );
 }

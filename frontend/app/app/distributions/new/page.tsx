@@ -8,7 +8,7 @@ import { TopBar } from '../../components/TopBar';
 import { TxStatusBanner } from '../../components/TxStatusBanner';
 import { useContractTransaction } from '../../../../lib/useContractTransaction';
 import { useNoxHandleClient } from '../../../../lib/useNoxHandleClient';
-import { CONTRACTS, KaelisCampaignManagerABI, CAMPAIGN_TYPE } from '../../../../lib/contracts';
+import { CONTRACTS, KaelisCampaignManagerABI, KaelisTokenABI, CAMPAIGN_TYPE } from '../../../../lib/contracts';
 
 interface RecipientRow {
   address: string;
@@ -92,6 +92,25 @@ export default function NewDistributionPage() {
         : Math.floor(Date.now() / 1000);
       const cliffSeconds = needsSchedule ? Number(cliffDays) * 86400 : 0;
       const vestingSeconds = needsSchedule ? Number(vestingDays) * 86400 : 0;
+
+      // ---- 0. Fund the pool: mint the total of all recipient allocations into the
+      // campaign manager's own balance BEFORE creating the campaign. Without this,
+      // claim() has nothing real to pay out -- the manager's confidentialTransfer
+      // call fails because its balance was never actually funded. mint() is
+      // onlyOwner on KaelisToken, so this step only succeeds if the connected
+      // wallet is the token's deployer/owner; a clear error surfaces otherwise
+      // rather than silently creating an unfunded campaign.
+      const totalAllocation = recipients.reduce((sum, r) => sum + BigInt(r.allocation || '0'), 0n);
+      setProgressLabel('Encrypting pool funding amount...');
+      const mintEncrypted = await handleClient.encryptInput(totalAllocation, 'uint256', tokenAddress as `0x${string}`);
+
+      setProgressLabel('Funding campaign pool...');
+      await execute({
+        address: tokenAddress as `0x${string}`,
+        abi: KaelisTokenABI as any,
+        functionName: 'mint',
+        args: [CONTRACTS.KaelisCampaignManager, mintEncrypted.handle, mintEncrypted.handleProof],
+      });
 
       // ---- 1. createCampaign ----
       setProgressLabel('Creating campaign...');
@@ -334,6 +353,10 @@ export default function NewDistributionPage() {
                 <dt>Recipients</dt>
                 <dd>{recipients.length}</dd>
               </div>
+              <div>
+                <dt>Total to mint</dt>
+                <dd>{recipients.reduce((sum, r) => sum + (Number(r.allocation) || 0), 0).toLocaleString()}</dd>
+              </div>
               {needsSchedule && (
                 <div>
                   <dt>Schedule</dt>
@@ -344,8 +367,9 @@ export default function NewDistributionPage() {
               )}
             </dl>
             <p className="kaelis-form-hint">
-              Each recipient allocation will be encrypted and submitted as a separate
-              transaction. You&apos;ll be asked to confirm each one in your wallet.
+              This will first mint the total allocation into the campaign pool, then
+              encrypt and submit each recipient allocation as a separate transaction.
+              You&apos;ll be asked to confirm several transactions in your wallet.
             </p>
             <div className="kaelis-wizard-actions">
               <button className="kaelis-btn kaelis-btn--secondary" onClick={() => setStep('recipients')}>
@@ -402,4 +426,5 @@ function SuccessIcon() {
       <path d="M14 24.5 20.5 31 34 16" stroke="var(--kaelis-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-}
+                }
+            

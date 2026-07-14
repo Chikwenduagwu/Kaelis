@@ -647,6 +647,7 @@
   color: var(--kaelis-ink-faint);
   font-size: 0.68rem;
   font-family: var(--font-body);
+  text-decoration: none;
   padding: 4px 12px;
   min-height: 44px;
   min-width: 56px;
@@ -808,5 +809,4 @@
   .kaelis-app-shell__content {
     padding-bottom: 70px;
   }
-  }
-  
+}

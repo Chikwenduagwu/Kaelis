@@ -52,7 +52,7 @@ export default function DashboardPage() {
 
         {error && <div className="kaelis-empty-banner kaelis-empty-banner--error">{error}</div>}
 
-        <div className="kaelis-stat-grid">
+        <div className="kaelis-stat-stack">
           <StatCard
             label="Total Distributions"
             value={campaignCount.toLocaleString()}
@@ -92,8 +92,8 @@ export default function DashboardPage() {
           isLoading={isLoading}
         />
 
-        <div className="kaelis-card kaelis-recent-campaigns">
-          <div className="kaelis-card__header">
+        <div className="kaelis-recent-campaigns">
+          <div className="kaelis-recent-campaigns__header">
             <h2>Recent Campaigns</h2>
             <Link href="/app/distributions">View all</Link>
           </div>
@@ -176,4 +176,4 @@ function CampaignTypeIcon() {
       />
     </svg>
   );
-                             }
+}

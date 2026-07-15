@@ -52,6 +52,29 @@ export const NOX_COMPUTE_ADDRESS_SEPOLIA = '0x24Ef36Ec5b626D7DCD09a98F3083c2758F
 export const KaelisCampaignManagerABI = KaelisCampaignManagerAbi;
 export const KaelisTokenABI = KaelisTokenAbi;
 
+/**
+ * Registry of confidential (ERC-7984) tokens the distribution wizard's token
+ * selector offers. Deliberately KaelisToken-only for now -- distributing real assets
+ * like USDT/USDC confidentially would need an ERC20-to-ERC7984 wrapper contract
+ * deployed per underlying token first (Nox ships a reference wrapper,
+ * ERC20ToERC7984Wrapper, but none is deployed yet for this project). Adding a second
+ * token later is just adding another entry here; the selector component itself
+ * doesn't need to change.
+ */
+export interface SupportedToken {
+  address: `0x${string}`;
+  symbol: string;
+  name: string;
+}
+
+export const SUPPORTED_TOKENS: SupportedToken[] = [
+  {
+    address: CONTRACTS.KaelisToken,
+    symbol: 'kUSD',
+    name: 'Kaelis Confidential Token',
+  },
+];
+
 export const CAMPAIGN_TYPE = {
   Airdrop: 0,
   Vesting: 1,

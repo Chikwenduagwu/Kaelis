@@ -10,6 +10,7 @@ const NAV_SECTIONS = [
       { href: '/app', label: 'Dashboard', icon: 'dashboard', comingSoon: false },
       { href: '/app/distributions', label: 'Distributions', icon: 'distributions', comingSoon: false },
       { href: '/app/claims', label: 'Claims', icon: 'claims', comingSoon: false },
+      { href: '/app/faucet', label: 'Faucet', icon: 'faucet', comingSoon: false },
       { href: '/app/vesting', label: 'Vesting', icon: 'vesting', comingSoon: true },
       { href: '/app/payroll', label: 'Payroll', icon: 'payroll', comingSoon: true },
       { href: '/app/grants', label: 'Grants', icon: 'grants', comingSoon: true },
@@ -95,6 +96,7 @@ function NavIcon({ name }: { name: string }) {
     dashboard: 'M4 4h6v6H4zM12 4h6v6h-6zM4 12h6v6H4zM12 12h6v6h-6z',
     distributions: 'M10 2v16M2 10h16',
     claims: 'M4 4h12v14l-6-3-6 3z',
+    faucet: 'M10 2 L15 9 C15 12 12.8 15 10 15 C7.2 15 5 12 5 9 Z',
     vesting: 'M3 15l4-5 4 3 6-8',
     payroll: 'M3 6h14v10H3zM3 9h14',
     grants: 'M10 2l2.5 5.5L18 9l-4.5 4L14.5 18 10 15l-4.5 3 1-5L2 9l5.5-1.5z',
@@ -110,5 +112,4 @@ function NavIcon({ name }: { name: string }) {
       <path d={paths[name] ?? paths.dashboard} stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-    }
-                    
+}

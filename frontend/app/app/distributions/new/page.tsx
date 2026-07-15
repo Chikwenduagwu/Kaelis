@@ -2,13 +2,21 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAccount } from 'wagmi';
+import { useAccount, usePublicClient } from 'wagmi';
 import { parseEventLogs } from 'viem';
 import { TopBar } from '../../components/TopBar';
 import { TxStatusBanner } from '../../components/TxStatusBanner';
+import { TokenSelector } from '../../components/TokenSelector';
 import { useContractTransaction } from '../../../../lib/useContractTransaction';
 import { useNoxHandleClient } from '../../../../lib/useNoxHandleClient';
-import { CONTRACTS, KaelisCampaignManagerABI, KaelisTokenABI, CAMPAIGN_TYPE } from '../../../../lib/contracts';
+import { useDecryptHandle } from '../../../../lib/useDecryptHandle';
+import {
+  CONTRACTS,
+  KaelisCampaignManagerABI,
+  KaelisTokenABI,
+  CAMPAIGN_TYPE,
+  SUPPORTED_TOKENS,
+} from '../../../../lib/contracts';
 
 interface RecipientRow {
   address: string;
@@ -22,22 +30,19 @@ type Step = 'details' | 'recipients' | 'review' | 'submitting' | 'done';
 export default function NewDistributionPage() {
   const router = useRouter();
   const { isConnected, address } = useAccount();
+  const publicClient = usePublicClient();
   const { getHandleClient } = useNoxHandleClient();
   const { execute, status, errorMessage, txHash } = useContractTransaction();
+  const { decryptHandle } = useDecryptHandle();
 
   const [step, setStep] = useState<Step>('details');
   const [campaignType, setCampaignType] = useState<CampaignTypeKey>('Airdrop');
-  const [tokenAddress, setTokenAddress] = useState(
-    CONTRACTS.KaelisToken !== '0x0000000000000000000000000000000000000000'
-      ? CONTRACTS.KaelisToken
-      : ''
-  );
+  const [tokenAddress, setTokenAddress] = useState<`0x${string}`>(SUPPORTED_TOKENS[0].address);
   const [startDate, setStartDate] = useState('');
   const [cliffDays, setCliffDays] = useState('0');
   const [vestingDays, setVestingDays] = useState('0');
   const [recipients, setRecipients] = useState<RecipientRow[]>([{ address: '', allocation: '' }]);
   const [progressLabel, setProgressLabel] = useState('');
-  const [createdCampaignId, setCreatedCampaignId] = useState<bigint | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const needsSchedule = campaignType !== 'Airdrop';
@@ -59,9 +64,6 @@ export default function NewDistributionPage() {
   }
 
   function validateDetails(): string | null {
-    if (!tokenAddress || !/^0x[a-fA-F0-9]{40}$/.test(tokenAddress)) {
-      return 'Enter a valid token contract address.';
-    }
     if (needsSchedule) {
       if (!startDate) return 'Set a start date for the vesting schedule.';
       const vd = Number(vestingDays);
@@ -93,23 +95,22 @@ export default function NewDistributionPage() {
       const cliffSeconds = needsSchedule ? Number(cliffDays) * 86400 : 0;
       const vestingSeconds = needsSchedule ? Number(vestingDays) * 86400 : 0;
 
-      // ---- 0. Fund the pool: mint the total of all recipient allocations into the
-      // campaign manager's own balance BEFORE creating the campaign. Without this,
-      // claim() has nothing real to pay out -- the manager's confidentialTransfer
-      // call fails because its balance was never actually funded. mint() is
-      // onlyOwner on KaelisToken, so this step only succeeds if the connected
-      // wallet is the token's deployer/owner; a clear error surfaces otherwise
-      // rather than silently creating an unfunded campaign.
+      // ---- 0. Fund the pool: transfer the total of all recipient allocations from
+      // the DISTRIBUTOR'S OWN confidential token balance into the campaign manager's
+      // balance, before creating the campaign. Without this, claim() has nothing
+      // real to pay out. Distributors get tokens beforehand via the separate Faucet
+      // page (More -> Faucet) -- this step only moves what they already hold, it
+      // does not mint anything itself.
       const totalAllocation = recipients.reduce((sum, r) => sum + BigInt(r.allocation || '0'), 0n);
       setProgressLabel('Encrypting pool funding amount...');
-      const mintEncrypted = await handleClient.encryptInput(totalAllocation, 'uint256', tokenAddress as `0x${string}`);
+      const fundingEncrypted = await handleClient.encryptInput(totalAllocation, 'uint256', tokenAddress);
 
-      setProgressLabel('Funding campaign pool...');
+      setProgressLabel('Funding campaign pool from your balance...');
       await execute({
-        address: tokenAddress as `0x${string}`,
+        address: tokenAddress,
         abi: KaelisTokenABI as any,
-        functionName: 'mint',
-        args: [CONTRACTS.KaelisCampaignManager, mintEncrypted.handle, mintEncrypted.handleProof],
+        functionName: 'confidentialTransfer',
+        args: [CONTRACTS.KaelisCampaignManager, fundingEncrypted.handle, fundingEncrypted.handleProof],
       });
 
       // ---- 1. createCampaign ----
@@ -120,7 +121,7 @@ export default function NewDistributionPage() {
         functionName: 'createCampaign',
         args: [
           CAMPAIGN_TYPE[campaignType],
-          tokenAddress as `0x${string}`,
+          tokenAddress,
           BigInt(startTime),
           BigInt(cliffSeconds),
           BigInt(vestingSeconds),
@@ -141,7 +142,6 @@ export default function NewDistributionPage() {
       if (campaignId === undefined) {
         throw new Error('Could not determine the new campaign id from the transaction receipt.');
       }
-      setCreatedCampaignId(campaignId);
 
       // ---- 2. addRecipient for each row (each allocation encrypted client-side) ----
       let index = 0;
@@ -225,13 +225,13 @@ export default function NewDistributionPage() {
             </label>
 
             <label className="kaelis-field">
-              <span>Confidential token address</span>
-              <input
-                type="text"
-                placeholder="0x..."
-                value={tokenAddress}
-                onChange={(e) => setTokenAddress(e.target.value)}
-                className="kaelis-mono-input"
+              <span>Asset</span>
+              <TokenSelector
+                selectedAddress={tokenAddress}
+                onSelect={setTokenAddress}
+                publicClient={publicClient}
+                walletAddress={address}
+                decryptHandle={decryptHandle}
               />
             </label>
 
@@ -346,15 +346,15 @@ export default function NewDistributionPage() {
                 <dd>{campaignType}</dd>
               </div>
               <div>
-                <dt>Token</dt>
-                <dd className="kaelis-mono">{tokenAddress}</dd>
+                <dt>Asset</dt>
+                <dd>{SUPPORTED_TOKENS.find((t) => t.address === tokenAddress)?.symbol ?? 'Unknown'}</dd>
               </div>
               <div>
                 <dt>Recipients</dt>
                 <dd>{recipients.length}</dd>
               </div>
               <div>
-                <dt>Total to mint</dt>
+                <dt>Total to fund</dt>
                 <dd>{recipients.reduce((sum, r) => sum + (Number(r.allocation) || 0), 0).toLocaleString()}</dd>
               </div>
               {needsSchedule && (
@@ -367,16 +367,24 @@ export default function NewDistributionPage() {
               )}
             </dl>
             <p className="kaelis-form-hint">
-              This will first mint the total allocation into the campaign pool, then
-              encrypt and submit each recipient allocation as a separate transaction.
-              You&apos;ll be asked to confirm several transactions in your wallet.
+              This transfers the total allocation from your own confidential balance
+              into the campaign pool, then encrypts and submits each recipient
+              allocation as a separate transaction. You&apos;ll confirm several
+              transactions in your wallet.
+            </p>
+            <p className="kaelis-form-hint">
+              <strong>Make sure your wallet holds at least this much of the selected
+              asset.</strong> If your balance is lower, the transfer will silently
+              move only what you have rather than failing outright, leaving the pool
+              underfunded without an error. Need tokens first? Claim from the Faucet
+              page under More.
             </p>
             <div className="kaelis-wizard-actions">
               <button className="kaelis-btn kaelis-btn--secondary" onClick={() => setStep('recipients')}>
                 Back
               </button>
               <button className="kaelis-btn kaelis-btn--primary" onClick={handleSubmitCampaign}>
-                Deploy confidential distribution
+                Deploy
               </button>
             </div>
           </div>
@@ -426,5 +434,5 @@ function SuccessIcon() {
       <path d="M14 24.5 20.5 31 34 16" stroke="var(--kaelis-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-                }
-            
+                     }
+    

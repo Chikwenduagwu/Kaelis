@@ -145,6 +145,8 @@
 .kaelis-review-list > div {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--kaelis-line);
 }
@@ -152,12 +154,16 @@
 .kaelis-review-list dt {
   color: var(--kaelis-ink-soft);
   font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 .kaelis-review-list dd {
   margin: 0;
   font-weight: 500;
   text-align: right;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 .kaelis-mono {
@@ -173,6 +179,25 @@
   align-items: center;
   gap: 12px;
   padding: 48px 32px;
+}
+
+/* ---------- Faucet ---------- */
+.kaelis-faucet-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 40px 32px;
+}
+
+.kaelis-faucet-card__icon {
+  margin-bottom: 8px;
+}
+
+.kaelis-faucet-card .kaelis-btn--large {
+  margin-top: 16px;
+  width: 100%;
 }
 
 .kaelis-processing {
@@ -267,4 +292,135 @@
     flex-direction: column;
     align-items: stretch;
   }
+
+  .kaelis-wizard-actions {
+    flex-direction: column-reverse;
+  }
+
+  .kaelis-wizard-actions .kaelis-btn {
+    width: 100%;
+    white-space: nowrap;
+  }
 }
+
+/* ---------- Token selector ---------- */
+.kaelis-token-selector {
+  position: relative;
+}
+
+.kaelis-token-selector__trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 14px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--kaelis-line);
+  background: var(--kaelis-bg);
+  text-align: left;
+  transition: border-color 150ms ease;
+}
+
+.kaelis-token-selector__trigger:hover {
+  border-color: var(--kaelis-gold);
+}
+
+.kaelis-token-selector__badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--kaelis-gold-wash);
+  color: var(--kaelis-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.kaelis-token-selector__badge--muted {
+  background: var(--kaelis-surface);
+  color: var(--kaelis-ink-faint);
+}
+
+.kaelis-token-selector__label {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.kaelis-token-selector__symbol {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--kaelis-ink);
+}
+
+.kaelis-token-selector__name {
+  font-size: 0.76rem;
+  color: var(--kaelis-ink-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kaelis-token-selector__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--kaelis-bg);
+  border: 1px solid var(--kaelis-line);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-raised);
+  padding: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.kaelis-token-option {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.kaelis-token-option--selected {
+  background: var(--kaelis-gold-wash);
+}
+
+.kaelis-token-option__main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  text-align: left;
+}
+
+.kaelis-token-option--disabled .kaelis-token-option__main {
+  cursor: default;
+}
+
+.kaelis-token-option__balance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 10px 10px 54px;
+  background: transparent;
+  border: none;
+  font-size: 0.78rem;
+  color: var(--kaelis-gold);
+  text-align: left;
+}
+
+.kaelis-token-option__balance:disabled {
+  color: var(--kaelis-ink-faint);
+  cursor: default;
+}
+
+  

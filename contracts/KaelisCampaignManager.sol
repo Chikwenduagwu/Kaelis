@@ -31,14 +31,23 @@ import {IERC7984} from "@iexec-nox/nox-confidential-contracts/contracts/interfac
  *    "no change" instead of reverting — reverting on a failed comparison would leak
  *    information about the encrypted amounts through gas/revert side channels.
  *
- *  - Campaign funding: a distributor mints or transfers KaelisToken (the platform's
- *    native ERC-7984 confidential token) to THIS contract's own address before sealing
- *    a campaign. When a recipient claims, this contract calls
+ *  - Campaign funding: a distributor transfers their own confidential token balance
+ *    to THIS contract's own address before sealing a campaign. When a recipient
+ *    claims, this contract calls
  *    IERC7984(campaign.token).confidentialTransfer(recipient, claimable) as itself,
- *    moving value out of its own pooled balance. This is why the
- *    confidentialTransfer(address,euint256) overload's Nox.isAllowed(amount, msg.sender)
- *    check passes: this contract is msg.sender AND already holds ACL access on
- *    `claimable` via the Nox.allowThis() call made just before the transfer.
+ *    moving value out of its own pooled balance. The confidentialTransfer(address,
+ *    euint256) overload's Nox.isAllowed(amount, msg.sender) check passes because this
+ *    contract is msg.sender AND already holds ACL access on `claimable` via
+ *    Nox.allowThis(). That check is NOT sufficient on its own, though: internally,
+ *    confidentialTransfer executes Nox.transfer(...) as the TOKEN contract (see
+ *    ERC7984Base._updateWithOptimizedPrimitives), and NoxCompute authorizes based on
+ *    whoever actually executes that low-level operation -- the token, not this
+ *    manager. So the token itself must separately be granted access to `claimable`,
+ *    via Nox.allowTransient(claimable, campaign.token), or the call reverts with
+ *    NotAllowed(claimable, token). Confirmed directly with the Nox team: the
+ *    externalEuint256+proof overload of confidentialTransfer auto-grants this via
+ *    fromExternal, but the plain-euint256 overload used here does not, and the caller
+ *    is expected to grant it explicitly.
  *
  *  - Every mutation ends with Nox.allowThis(handle) + Nox.allow(handle, viewer) as
  *    required by the SDK: transient access is cleared at end-of-tx, so permissions
@@ -295,14 +304,27 @@ contract KaelisCampaignManager {
 
         Nox.allowThis(claimable);
         Nox.allow(claimable, msg.sender);
+        // The token contract executes Nox.transfer(...) INTERNALLY as itself when we
+        // call confidentialTransfer() below (see ERC7984Base._updateWithOptimizedPrimitives).
+        // NoxCompute checks the ACL of whoever actually executes that operation --
+        // the token contract, not this manager -- so the token must be separately
+        // authorized on `claimable` or the call reverts with NotAllowed(claimable,
+        // token). allowThis()/allow() above only cover THIS contract and the
+        // recipient; they do not extend to the token. Confirmed with the Nox team:
+        // the externalEuint256+proof overload of confidentialTransfer auto-grants
+        // this via fromExternal, but the plain-euint256 overload used here (since
+        // `claimable` is already an internal handle, not one needing a proof) does
+        // not -- the caller is expected to grant it explicitly, which is what this
+        // line does. Transient is sufficient since the token only needs access for
+        // the duration of this transaction, and this contract can grant it because
+        // it already holds access to `claimable` via the allowThis() call above.
+        Nox.allowTransient(claimable, campaign.token);
 
         // Move `claimable` out of this contract's pooled KaelisToken balance into the
-        // recipient's wallet. This contract is msg.sender on the token call, and it
-        // already holds ACL access on `claimable` from the allowThis() call above, so
-        // the token's authorization check on confidentialTransfer passes. If the
-        // campaign's pool is short, the token's safe-subtract semantics cap the actually
-        // moved amount at the available balance instead of reverting, so no information
-        // about the shortfall leaks through a failed transaction.
+        // recipient's wallet. If the campaign's pool is short, the token's
+        // safe-subtract semantics cap the actually moved amount at the available
+        // balance instead of reverting, so no information about the shortfall leaks
+        // through a failed transaction.
         IERC7984(campaign.token).confidentialTransfer(msg.sender, claimable);
 
         emit Claimed(campaignId, msg.sender);

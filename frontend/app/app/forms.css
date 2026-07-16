@@ -16,7 +16,8 @@
 /* ---------- Wizard steps ---------- */
 .kaelis-wizard-steps {
   display: flex;
-  gap: 32px;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 28px;
 }
 
@@ -26,6 +27,9 @@
   gap: 8px;
   font-size: 0.85rem;
   color: var(--kaelis-ink-faint);
+  white-space: nowrap;
+  flex: 1;
+  justify-content: center;
 }
 
 .kaelis-wizard-step--active {
@@ -42,12 +46,25 @@
   justify-content: center;
   font-size: 0.75rem;
   border: 1px solid var(--kaelis-line);
+  flex-shrink: 0;
 }
 
 .kaelis-wizard-step--active .kaelis-wizard-step__num {
   background: var(--kaelis-gold);
   border-color: var(--kaelis-gold);
   color: white;
+}
+
+@media (max-width: 480px) {
+  .kaelis-wizard-steps {
+    gap: 4px;
+  }
+
+  .kaelis-wizard-step {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.68rem;
+  }
 }
 
 .kaelis-wizard-actions {
@@ -179,6 +196,14 @@
   align-items: center;
   gap: 12px;
   padding: 48px 32px;
+  /* Frosted glass treatment: semi-transparent surface + blur, so this reads as a
+     distinct "something important is happening" state rather than a plain card,
+     while staying within the existing gold/white palette (no new colors). */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-raised);
 }
 
 /* ---------- Faucet ---------- */
@@ -208,6 +233,100 @@
   width: 100%;
 }
 
+.kaelis-processing p {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--kaelis-ink);
+}
+
+/* ---------- Orbital loader ----------
+   Two concentric rings spinning in opposite directions at different speeds, plus a
+   soft pulsing gold glow behind them -- reads as "meaningful, secure computation in
+   progress" rather than a generic single spinner, fitting for a confidential-compute
+   product. Pure CSS (no JS animation deps): three stacked absolutely-positioned
+   elements inside a fixed-size container. */
+.kaelis-orbital-loader {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 4px;
+}
+
+.kaelis-orbital-loader__glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(176, 141, 63, 0.35) 0%, rgba(176, 141, 63, 0) 70%);
+  animation: kaelis-orbital-pulse 2.2s ease-in-out infinite;
+}
+
+.kaelis-orbital-loader__ring {
+  position: absolute;
+  border-radius: 50%;
+  border-style: solid;
+}
+
+.kaelis-orbital-loader__ring--outer {
+  inset: 0;
+  border-width: 3px;
+  border-color: var(--kaelis-gold-wash);
+  border-top-color: var(--kaelis-gold);
+  animation: kaelis-orbital-spin 1.4s linear infinite;
+}
+
+.kaelis-orbital-loader__ring--inner {
+  inset: 14px;
+  border-width: 2.5px;
+  border-color: transparent;
+  border-top-color: var(--kaelis-gold-bright);
+  border-right-color: var(--kaelis-gold-bright);
+  animation: kaelis-orbital-spin-reverse 0.9s linear infinite;
+}
+
+.kaelis-orbital-loader__core {
+  position: absolute;
+  inset: 28px;
+  border-radius: 50%;
+  background: var(--kaelis-gold);
+  animation: kaelis-orbital-pulse-core 1.4s ease-in-out infinite;
+}
+
+@keyframes kaelis-orbital-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes kaelis-orbital-spin-reverse {
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes kaelis-orbital-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes kaelis-orbital-pulse-core {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .kaelis-spinner {
   animation: kaelis-spin 1s linear infinite;
 }
@@ -222,6 +341,7 @@
   }
 }
 
+
 /* ---------- Tx status banner ---------- */
 .kaelis-tx-banner {
   display: flex;
@@ -231,8 +351,10 @@
   border-radius: var(--radius-control);
   font-size: 0.85rem;
   width: 100%;
-  background: var(--kaelis-surface);
-  border: 1px solid var(--kaelis-line);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .kaelis-tx-banner--success {

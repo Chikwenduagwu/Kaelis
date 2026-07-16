@@ -3,260 +3,220 @@
   overflow-x: hidden;
 }
 
-/* ==================== HERO v3 (white bg, vault illustration) ==================== */
-.kaelis-hero-v3 {
+/* ==================== HERO v4 (full-bleed photo, floating pill nav) ==================== */
+.kaelis-hero-v4 {
+  position: relative;
   width: 100%;
   min-height: 100vh;
   min-height: 100svh;
-  background: var(--kaelis-bg);
-  padding-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  color: white;
+  background: #0a0a0a;
 }
 
-/* ---------- Nav (v3) ---------- */
-.kaelis-nav-v3 {
+.kaelis-hero-v4__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 20%;
+  z-index: 0;
+}
+
+.kaelis-hero-v4__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.55) 0%,
+    rgba(10, 10, 10, 0.45) 45%,
+    rgba(10, 10, 10, 0.8) 100%
+  );
+  z-index: 1;
+}
+
+/* ---------- Floating pill nav ---------- */
+.kaelis-nav-v4 {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.kaelis-nav-v4__pill {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 22px 40px;
+  gap: 28px;
+  padding: 10px 12px 10px 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-raised);
+  max-width: 100%;
 }
 
-.kaelis-nav-v3__brand {
+.kaelis-nav-v4__brand {
   display: flex;
   align-items: center;
   gap: 8px;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.2rem;
-  letter-spacing: 0.12em;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: var(--kaelis-ink);
+  flex-shrink: 0;
+}
+
+.kaelis-nav-v4__links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-nav-v4__links a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 200ms ease;
+}
+
+.kaelis-nav-v4__links a:hover {
   color: var(--kaelis-ink);
 }
 
-.kaelis-nav-v3__right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.kaelis-nav-v3__menu {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-control);
-  border: 1px solid var(--kaelis-line);
-  background: transparent;
-}
-
-/* ---------- Hero copy ---------- */
-.kaelis-hero-v3__body {
-  padding: 8px 40px 0;
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-.kaelis-hero-v3__copy {
-  max-width: 620px;
-}
-
-.kaelis-eyebrow {
+.kaelis-nav-v4__cta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 16px;
+  padding: 9px 18px;
   border-radius: 999px;
-  border: 1px solid var(--kaelis-gold);
-  color: var(--kaelis-gold);
-  font-size: 0.8rem;
+  background: var(--kaelis-gold);
+  color: white;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.03em;
-  width: fit-content;
-  margin-bottom: 24px;
+  text-transform: uppercase;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 200ms ease;
 }
 
-.kaelis-hero-v3__title {
+.kaelis-nav-v4__cta:hover {
+  background: var(--kaelis-gold-bright);
+}
+
+/* ---------- Hero content ---------- */
+.kaelis-hero-v4__content {
+  position: relative;
+  z-index: 10;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 120px 24px 40px;
+  text-align: center;
+}
+
+.kaelis-hero-v4__title {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(2.6rem, 6vw, 4.2rem);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  color: var(--kaelis-ink);
-  margin: 0 0 22px;
+  font-size: clamp(2.6rem, 7vw, 5.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0 0 24px;
+  text-wrap: balance;
 }
 
-.kaelis-hero-v3__title--accent {
-  color: var(--kaelis-gold);
+.kaelis-hero-v4__subtitle {
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 560px;
+  margin: 0 auto 28px;
 }
 
-.kaelis-hero-v3__subtitle {
-  font-size: 1.05rem;
-  line-height: 1.65;
-  color: var(--kaelis-ink-soft);
-  max-width: 480px;
-  margin: 0 0 32px;
-}
-
-.kaelis-hero-v3__actions {
+.kaelis-hero-v4__links {
   display: flex;
-  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
-/* ---------- Vault stage ---------- */
-.kaelis-vault-stage {
+.kaelis-hero-v4__link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: white;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--kaelis-gold-bright);
+  transition: color 200ms ease;
+}
+
+.kaelis-hero-v4__link:hover {
+  color: var(--kaelis-gold-bright);
+}
+
+.kaelis-hero-v4__link-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ---------- Bottom floating banner ---------- */
+.kaelis-hero-v4__banner {
   position: relative;
-  width: 100%;
-  max-width: 900px;
-  margin: 56px auto 0;
-  padding: 0 24px;
+  z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  max-width: 900px;
+  margin: 40px auto 32px;
+  padding: 14px 16px 14px 22px;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.kaelis-vault-svg {
-  width: min(420px, 70vw);
-  height: auto;
-  animation: kaelis-vault-float 5s ease-in-out infinite;
+.kaelis-hero-v4__banner span {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
 }
 
-@keyframes kaelis-vault-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.kaelis-vault-connectors {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.kaelis-vault-tags {
-  position: absolute;
-  z-index: 2;
+.kaelis-hero-v4__banner-actions {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  gap: 10px;
 }
 
-.kaelis-vault-tags--left {
-  left: 0;
-  top: 8%;
-}
-
-.kaelis-vault-tags--right {
-  right: 0;
-  top: 42%;
-}
-
-.kaelis-vault-tag {
+.kaelis-hero-v4__banner-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 16px;
+  padding: 9px 18px;
   border-radius: 999px;
-  background: var(--kaelis-bg);
-  border: 1px solid var(--kaelis-line);
-  box-shadow: var(--shadow-soft);
-  font-size: 0.82rem;
-  font-weight: 500;
+  background: white;
   color: var(--kaelis-ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
   white-space: nowrap;
-  animation: kaelis-tag-float 4s ease-in-out infinite;
+  transition: background 200ms ease;
 }
 
-@keyframes kaelis-tag-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
-.kaelis-vault-tag--verified {
-  border-radius: var(--radius-control);
-  align-items: flex-start;
-  padding: 12px 18px;
-}
-
-.kaelis-vault-tag__title {
-  display: block;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.kaelis-vault-tag__subtitle {
-  display: block;
-  font-size: 0.72rem;
-  color: var(--kaelis-ink-faint);
-}
-
-/* ---------- Tagline ---------- */
-.kaelis-hero-v3__tagline {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 6px;
-  margin: 64px auto 40px;
-}
-
-.kaelis-hero-v3__tagline-small {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--kaelis-gold);
-}
-
-.kaelis-hero-v3__tagline-large {
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--kaelis-ink);
-}
-
-.kaelis-hero-v3__tagline-rule {
-  width: 40px;
-  height: 2px;
-  background: var(--kaelis-gold);
-  margin-top: 10px;
-}
-
-/* ---------- Feature strip ---------- */
-.kaelis-hero-v3__strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 28px 24px;
-  background: var(--kaelis-surface);
-  border: 1px solid var(--kaelis-line);
-  border-radius: var(--radius-card);
-}
-
-.kaelis-hero-v3__strip-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  text-align: center;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--kaelis-ink);
+.kaelis-hero-v4__banner-cta:hover {
+  background: var(--kaelis-gold-wash);
 }
 
 /* ==================== Buttons (shared core moved to globals.css) ==================== */
@@ -439,70 +399,64 @@
 }
 
 @media (max-width: 768px) {
-  .kaelis-nav-v3 {
-    padding: 16px 16px;
+  .kaelis-nav-v4 {
+    top: 14px;
+    padding: 0 12px;
   }
 
-  .kaelis-nav-v3__brand span {
-    font-size: 1rem;
-  }
-
-  .kaelis-nav-v3__menu {
-    display: flex;
-  }
-
-  .kaelis-hero-v3__body {
-    padding: 8px 20px 0;
-  }
-
-  .kaelis-hero-v3__title {
-    font-size: clamp(2.1rem, 9vw, 2.8rem);
-  }
-
-  .kaelis-hero-v3__actions {
+  .kaelis-nav-v4__pill {
+    gap: 12px;
+    padding: 8px 8px 8px 14px;
     width: 100%;
   }
 
-  .kaelis-hero-v3__actions .kaelis-btn {
-    flex: 1;
-  }
-
-  /* On narrow screens the floating absolute-positioned tags would overlap a vault
-     illustration that's already scaled down -- switch to a simple centered wrap of
-     static chips below the vault instead, and hide the connector line svg (it's
-     drawn for the wide desktop layout's specific tag positions). */
-  .kaelis-vault-stage {
-    flex-direction: column;
-    margin-top: 32px;
-  }
-
-  .kaelis-vault-connectors {
+  .kaelis-nav-v4__links {
     display: none;
   }
 
-  .kaelis-vault-tags {
-    position: static;
-    flex-direction: row;
-    flex-wrap: wrap;
+  .kaelis-nav-v4__brand span {
+    font-size: 0.85rem;
+  }
+
+  .kaelis-nav-v4__cta {
+    padding: 8px 14px;
+    font-size: 0.72rem;
+  }
+
+  .kaelis-hero-v4__content {
+    padding: 100px 20px 32px;
+  }
+
+  .kaelis-hero-v4__title {
+    font-size: clamp(2rem, 9vw, 2.8rem);
+    line-height: 1.08;
+  }
+
+  .kaelis-hero-v4__subtitle {
+    font-size: 0.92rem;
+  }
+
+  .kaelis-hero-v4__links {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .kaelis-hero-v4__link-divider {
+    display: none;
+  }
+
+  .kaelis-hero-v4__banner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    border-radius: 20px;
+    margin: 24px 16px 24px;
+    padding: 18px;
+  }
+
+  .kaelis-hero-v4__banner-actions {
     justify-content: center;
-    margin-top: 20px;
-  }
-
-  .kaelis-vault-tags--right {
-    margin-top: 10px;
-  }
-
-  .kaelis-vault-tag {
-    animation: none;
-  }
-
-  .kaelis-hero-v3__tagline {
-    margin: 44px auto 32px;
-  }
-
-  .kaelis-hero-v3__strip {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px 12px;
+    flex-wrap: wrap;
   }
 
   .kaelis-terminal {
@@ -524,8 +478,13 @@
 }
 
 @media (max-width: 375px) {
-  .kaelis-hero-v3__actions {
-    flex-direction: column;
+  .kaelis-hero-v4__title {
+    font-size: 1.9rem;
   }
+
+  .kaelis-hero-v4__banner span {
+    font-size: 0.78rem;
   }
+}
+
   

@@ -135,10 +135,12 @@ function FaucetIcon() {
 
 function Spinner() {
   return (
-    <svg className="kaelis-spinner kaelis-spinner--large" width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <circle cx="16" cy="16" r="13" stroke="var(--kaelis-line)" strokeWidth="3" />
-      <path d="M29 16A13 13 0 0 0 16 3" stroke="var(--kaelis-gold)" strokeWidth="3" strokeLinecap="round" />
-    </svg>
+    <div className="kaelis-orbital-loader" role="status" aria-label="Processing">
+      <div className="kaelis-orbital-loader__glow" />
+      <div className="kaelis-orbital-loader__ring kaelis-orbital-loader__ring--outer" />
+      <div className="kaelis-orbital-loader__ring kaelis-orbital-loader__ring--inner" />
+      <div className="kaelis-orbital-loader__core" />
+    </div>
   );
 }
 
@@ -149,4 +151,5 @@ function CheckBadge() {
       <path d="M12 20.5 17.5 26 29 14" stroke="var(--kaelis-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-                }
+    }
+    

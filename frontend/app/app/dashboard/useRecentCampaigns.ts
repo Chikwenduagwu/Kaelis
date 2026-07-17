@@ -10,6 +10,7 @@ export interface RecentCampaign {
   status: string;
   recipientCount: number;
   createdAt: Date;
+  token: `0x${string}`;
 }
 
 /**
@@ -74,6 +75,7 @@ export function useRecentCampaigns(limit = 5) {
           status: CAMPAIGN_STATUS_LABELS[raw.status] ?? 'Unknown',
           recipientCount: raw.recipientCount,
           createdAt: new Date(Number(raw.createdAt) * 1000),
+          token: raw.token,
         }));
 
         setCampaigns(parsed);

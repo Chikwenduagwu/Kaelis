@@ -377,19 +377,95 @@
 }
 
 /* ---------- Claims-specific ---------- */
-.kaelis-eligible-panel {
+.kaelis-no-eligibility {
   display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  padding: 16px;
-  border-radius: var(--radius-control);
-  background: #e8f5ee;
-  margin: 16px 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--kaelis-ink-soft);
+  background: var(--kaelis-surface-raised);
+  border: 1px solid var(--kaelis-line);
+  border-radius: var(--radius-card);
 }
 
-.kaelis-eligible-panel__title {
+.kaelis-no-eligibility p {
   font-weight: 500;
-  margin: 0 0 4px;
+  color: var(--kaelis-ink);
+  margin: 4px 0 0;
+}
+
+.kaelis-eligible-list {
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
+  background: var(--kaelis-surface-raised);
+  border-top: 1px solid var(--kaelis-line);
+}
+
+.kaelis-eligible-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 40px;
+  border-bottom: 1px solid var(--kaelis-line);
+}
+
+.kaelis-eligible-row:last-child {
+  border-bottom: none;
+}
+
+.kaelis-eligible-row__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--kaelis-gold-wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kaelis-eligible-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kaelis-eligible-row__title {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.kaelis-eligible-row__meta {
+  font-size: 0.8rem;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-eligible-row__status {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kaelis-eligible-row__result {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--kaelis-success);
+}
+
+.kaelis-eligible-row__claim-btn {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 20px;
 }
 
 .kaelis-claimed-result {
@@ -422,6 +498,22 @@
   .kaelis-wizard-actions .kaelis-btn {
     width: 100%;
     white-space: nowrap;
+  }
+
+  .kaelis-eligible-list {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+
+  .kaelis-eligible-row {
+    padding: 16px 20px;
+    flex-wrap: wrap;
+  }
+
+  .kaelis-eligible-row__claim-btn {
+    width: 100%;
+    margin-top: 8px;
   }
 }
 

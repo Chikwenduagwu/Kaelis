@@ -6,71 +6,26 @@ import { TopBar } from '../components/TopBar';
 import { TxStatusBanner } from '../components/TxStatusBanner';
 import { useContractTransaction } from '../../../lib/useContractTransaction';
 import { useDecryptHandle } from '../../../lib/useDecryptHandle';
+import { useEligibleCampaigns } from './useEligibleCampaigns';
 import { CONTRACTS, KaelisCampaignManagerABI } from '../../../lib/contracts';
-
-type FlowState = 'input' | 'checking' | 'eligible' | 'not-eligible' | 'claiming' | 'claimed';
 
 export default function ClaimsPage() {
   const { address, isConnected } = useAccount();
   const publicClient = usePublicClient();
+  const { campaigns, isLoading, error, isDeployed } = useEligibleCampaigns(address);
   const { execute, status, errorMessage, txHash } = useContractTransaction();
   const { decryptHandle, state: decryptState } = useDecryptHandle();
 
-  const [campaignIdInput, setCampaignIdInput] = useState('');
-  const [flow, setFlow] = useState<FlowState>('input');
-  const [checkError, setCheckError] = useState<string | null>(null);
-  const [claimedAmount, setClaimedAmount] = useState<bigint | null>(null);
+  const [claimingId, setClaimingId] = useState<bigint | null>(null);
+  const [claimedResults, setClaimedResults] = useState<Record<string, bigint>>({});
+  const [claimError, setClaimError] = useState<string | null>(null);
 
-  async function handleCheckEligibility() {
-    if (!address || !campaignIdInput) return;
-    setCheckError(null);
-    setFlow('checking');
-
-    try {
-      const campaignId = BigInt(campaignIdInput);
-
-      const isRecipient = (await publicClient!.readContract({
-        address: CONTRACTS.KaelisCampaignManager,
-        abi: KaelisCampaignManagerABI as any,
-        functionName: 'isRecipient',
-        args: [campaignId, address],
-      })) as boolean;
-
-      if (!isRecipient) {
-        setFlow('not-eligible');
-        return;
-      }
-
-      // Confirm the campaign exists and is active before allowing a claim attempt.
-      const campaign = (await publicClient!.readContract({
-        address: CONTRACTS.KaelisCampaignManager,
-        abi: KaelisCampaignManagerABI as any,
-        functionName: 'getCampaign',
-        args: [campaignId],
-      })) as any;
-
-      if (campaign.status !== 0) {
-        setCheckError('This campaign is not currently active.');
-        setFlow('not-eligible');
-        return;
-      }
-
-      setFlow('eligible');
-    } catch (err) {
-      setCheckError(
-        err instanceof Error
-          ? err.message
-          : 'Could not verify eligibility for this campaign id.'
-      );
-      setFlow('not-eligible');
-    }
-  }
-
-  async function handleClaim() {
+  async function handleClaim(campaignId: bigint) {
     if (!address) return;
-    setFlow('claiming');
+    setClaimingId(campaignId);
+    setClaimError(null);
+
     try {
-      const campaignId = BigInt(campaignIdInput);
       await execute({
         address: CONTRACTS.KaelisCampaignManager,
         abi: KaelisCampaignManagerABI as any,
@@ -89,11 +44,11 @@ export default function ClaimsPage() {
       })) as `0x${string}`;
 
       const value = await decryptHandle(claimedHandle);
-      setClaimedAmount(value);
-      setFlow('claimed');
+      setClaimedResults((prev) => ({ ...prev, [campaignId.toString()]: value }));
     } catch (err) {
-      setCheckError(err instanceof Error ? err.message : 'Claim failed.');
-      setFlow('eligible');
+      setClaimError(err instanceof Error ? err.message : 'Claim failed.');
+    } finally {
+      setClaimingId(null);
     }
   }
 
@@ -111,105 +66,138 @@ export default function ClaimsPage() {
   return (
     <>
       <TopBar title="Claims" />
-      <div className="kaelis-page kaelis-page--narrow">
+      <div className="kaelis-page">
         <p className="kaelis-page__subtitle">
           Verify eligibility privately and securely claim your confidential allocation.
         </p>
 
-        <div className="kaelis-card">
-          <h2 className="kaelis-form-title">Check eligibility</h2>
-          <div className="kaelis-field-row">
-            <label className="kaelis-field kaelis-field--grow">
-              <span>Campaign ID</span>
-              <input
-                type="number"
-                min={0}
-                placeholder="0"
-                value={campaignIdInput}
-                onChange={(e) => setCampaignIdInput(e.target.value)}
-              />
-            </label>
-            <button
-              className="kaelis-btn kaelis-btn--primary"
-              onClick={handleCheckEligibility}
-              disabled={!campaignIdInput || flow === 'checking'}
-            >
-              {flow === 'checking' ? 'Checking…' : 'Check eligibility'}
-            </button>
+        {isDeployed && error && (
+          <div className="kaelis-empty-banner kaelis-empty-banner--error">{error}</div>
+        )}
+
+        {!isDeployed && (
+          <div className="kaelis-empty-banner">
+            Contracts not yet deployed to this network. Run{' '}
+            <code>npm run deploy:sepolia</code>.
           </div>
+        )}
 
-          {checkError && <p className="kaelis-form-error">{checkError}</p>}
-
-          {flow === 'not-eligible' && !checkError && (
-            <div className="kaelis-empty-banner">
-              This wallet is not a recipient on campaign #{campaignIdInput}.
+        {isLoading && (
+          <div className="kaelis-eligible-list">
+            <div className="kaelis-skeleton-list" style={{ padding: '16px 0' }}>
+              {[0, 1].map((i) => (
+                <div className="kaelis-skeleton-row" key={i} />
+              ))}
             </div>
-          )}
+          </div>
+        )}
 
-          {(flow === 'eligible' || flow === 'claiming' || flow === 'claimed') && (
-            <div className="kaelis-eligible-panel">
-              <CheckBadge />
-              <div>
-                <p className="kaelis-eligible-panel__title">
-                  You&apos;re eligible on campaign #{campaignIdInput}
-                </p>
-                <p className="kaelis-form-hint">
-                  Your exact allocation stays encrypted until you claim and decrypt it
-                  yourself below.
-                </p>
-              </div>
-            </div>
-          )}
+        {!isLoading && isDeployed && !error && campaigns.length === 0 && (
+          <div className="kaelis-no-eligibility">
+            <NoEligibilityIcon />
+            <p>You&apos;re not eligible for any airdrops at the moment.</p>
+            <span className="kaelis-form-hint">
+              When a distributor adds your wallet to a campaign, it will show up here.
+            </span>
+          </div>
+        )}
 
-          {flow === 'eligible' && (
-            <button className="kaelis-btn kaelis-btn--primary kaelis-btn--large" onClick={handleClaim}>
-              Claim confidential allocation
-            </button>
-          )}
+        {!isLoading && campaigns.length > 0 && (
+          <div className="kaelis-eligible-list">
+            {campaigns.map((c) => {
+              const key = c.id.toString();
+              const isThisClaiming = claimingId === c.id;
+              const claimedValue = claimedResults[key];
+              const isPaused = c.status === 1;
+              const isCompleted = c.status === 2;
 
-          {(flow === 'claiming' || flow === 'claimed') && (
-            <div className="kaelis-processing">
-              <TxStatusBanner
-                status={status}
-                errorMessage={errorMessage}
-                txHash={txHash}
-                pendingLabel="Confirming claim on Sepolia…"
-                successLabel="Claim confirmed. Decrypting your amount…"
-              />
-              {status === 'success' && decryptState.status === 'pending' && (
-                <p className="kaelis-form-hint">
-                  Waiting for the confidential compute result to become available. This
-                  can take a few seconds while the off-chain Nox Runner finishes.
-                </p>
-              )}
-              {decryptState.status === 'error' && (
-                <p className="kaelis-form-error">{decryptState.message}</p>
-              )}
-              {flow === 'claimed' && claimedAmount !== null && (
-                <div className="kaelis-claimed-result">
-                  <CheckBadge large />
-                  <h3>Claim successful</h3>
-                  <p className="kaelis-claimed-result__amount">{claimedAmount.toString()}</p>
-                  <p className="kaelis-form-hint">
-                    Decrypted for your wallet only — this figure is not visible to
-                    anyone else on-chain.
-                  </p>
+              return (
+                <div key={key} className="kaelis-eligible-row">
+                  <div className="kaelis-eligible-row__icon">
+                    <CampaignIcon />
+                  </div>
+                  <div className="kaelis-eligible-row__main">
+                    <span className="kaelis-eligible-row__title">
+                      Eligible for {c.campaignType} Campaign #{key}
+                    </span>
+                    <span className="kaelis-eligible-row__meta">
+                      {c.tokenSymbol}
+                      {isPaused && ' · Paused'}
+                      {isCompleted && ' · Completed'}
+                    </span>
+
+                    {isThisClaiming && (
+                      <div className="kaelis-eligible-row__status">
+                        <TxStatusBanner
+                          status={status}
+                          errorMessage={errorMessage}
+                          txHash={txHash}
+                          pendingLabel="Confirming claim on Sepolia…"
+                          successLabel="Claim confirmed. Decrypting your amount…"
+                        />
+                        {status === 'success' && decryptState.status === 'pending' && (
+                          <p className="kaelis-form-hint">Decrypting your claimed amount…</p>
+                        )}
+                      </div>
+                    )}
+
+                    {claimError && claimingId === null && (
+                      <p className="kaelis-form-error">{claimError}</p>
+                    )}
+
+                    {claimedValue !== undefined && (
+                      <div className="kaelis-eligible-row__result">
+                        <CheckBadge />
+                        Claimed {claimedValue.toString()} {c.tokenSymbol}
+                      </div>
+                    )}
+                  </div>
+
+                  {claimedValue === undefined && (
+                    <button
+                      className="kaelis-btn kaelis-btn--primary kaelis-eligible-row__claim-btn"
+                      onClick={() => handleClaim(c.id)}
+                      disabled={isThisClaiming || isPaused || isCompleted}
+                    >
+                      {isThisClaiming ? 'Claiming…' : 'Claim'}
+                    </button>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </>
   );
 }
 
-function CheckBadge({ large }: { large?: boolean }) {
-  const size = large ? 40 : 22;
+function CampaignIcon() {
   return (
-    <svg width={size} height={size} viewBox="0 0 22 22" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="10" stroke="var(--kaelis-success)" strokeWidth="1.5" />
-      <path d="M6.5 11.5 9.5 14.5 15.5 8" stroke="var(--kaelis-success)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path
+        d="M10 2 L17 5.5 V9 C17 13.5 14 17.5 10 18.5 C6 17.5 3 13.5 3 9 V5.5 Z"
+        stroke="var(--kaelis-gold)"
+        strokeWidth="1.4"
+      />
     </svg>
   );
 }
+
+function NoEligibilityIcon() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <circle cx="20" cy="20" r="17" stroke="var(--kaelis-line)" strokeWidth="1.6" />
+      <path d="M13 20h14" stroke="var(--kaelis-ink-faint)" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CheckBadge() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="10" cy="10" r="9" stroke="var(--kaelis-success)" strokeWidth="1.5" />
+      <path d="M6 10.5 8.5 13 14 7" stroke="var(--kaelis-success)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+            }

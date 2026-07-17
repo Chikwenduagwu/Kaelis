@@ -607,6 +607,118 @@
   color: var(--kaelis-ink-soft);
 }
 
+/* ---------- Distributions list (full-bleed rows, matches Recent Campaigns pattern) ---------- */
+.kaelis-distributions-list {
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
+  background: var(--kaelis-surface-raised);
+  border-top: 1px solid var(--kaelis-line);
+}
+
+.kaelis-distributions-list .kaelis-skeleton-list,
+.kaelis-distributions-list .kaelis-empty-state {
+  padding: 16px 40px;
+}
+
+.kaelis-distribution-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 40px;
+  border-bottom: 1px solid var(--kaelis-line);
+  text-decoration: none;
+  color: inherit;
+  transition: background 150ms ease;
+}
+
+.kaelis-distribution-row:last-child {
+  border-bottom: none;
+}
+
+.kaelis-distribution-row:hover {
+  background: var(--kaelis-surface);
+}
+
+.kaelis-distribution-row__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Distinct accent per campaign type -- gives the list visual rhythm instead of every
+   row looking identical, while staying within the existing palette (gold, success
+   green, a muted blue, and a muted purple already used elsewhere for badges). */
+.kaelis-distribution-row__icon--airdrop {
+  background: var(--kaelis-gold-wash);
+  color: var(--kaelis-gold);
+}
+
+.kaelis-distribution-row__icon--vesting {
+  background: #e8f5ee;
+  color: var(--kaelis-success);
+}
+
+.kaelis-distribution-row__icon--payroll {
+  background: #e6f0fa;
+  color: #3b7bc4;
+}
+
+.kaelis-distribution-row__icon--grant {
+  background: #eeeaf7;
+  color: #8a6fd1;
+}
+
+.kaelis-distribution-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kaelis-distribution-row__title-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kaelis-distribution-row__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kaelis-distribution-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--kaelis-ink-soft);
+  flex-wrap: wrap;
+}
+
+.kaelis-distribution-row__token {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.kaelis-distribution-row__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--kaelis-ink-faint);
+  flex-shrink: 0;
+}
+
 /* ---------- Empty / skeleton states ---------- */
 .kaelis-empty-state {
   display: flex;
@@ -776,6 +888,22 @@
     padding-right: 20px;
   }
 
+  .kaelis-distributions-list {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+
+  .kaelis-distributions-list .kaelis-skeleton-list,
+  .kaelis-distributions-list .kaelis-empty-state {
+    padding: 16px 20px;
+  }
+
+  .kaelis-distribution-row {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
   .kaelis-dashboard-header {
     gap: 12px;
   }
@@ -809,4 +937,5 @@
   .kaelis-app-shell__content {
     padding-bottom: 70px;
   }
-}
+  }
+  

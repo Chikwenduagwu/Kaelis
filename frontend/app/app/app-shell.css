@@ -160,12 +160,19 @@
   font-size: 0.95rem;
 }
 
-/* ---------- Dashboard hero panel (photo bg + blur + overlay) ---------- */
+/* ---------- Dashboard hero panel (full-bleed photo bg + light blur + overlay) ---------- */
+/* Deliberately full-bleed, not a boxed card -- breaks out of .kaelis-page's own
+   horizontal padding via matching negative margins (same technique already used for
+   .kaelis-stat-stack / .kaelis-activity-chart / .kaelis-recent-campaigns), square
+   corners, spanning true edge-to-edge width. */
 .kaelis-dashboard-hero {
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius-card);
-  padding: 28px 28px 20px;
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
+  margin-top: -32px;
+  padding: 44px 40px 28px;
   margin-bottom: 24px;
   color: white;
 }
@@ -173,25 +180,28 @@
 .kaelis-dashboard-hero__bg {
   position: absolute;
   inset: 0;
-  background-image: url('https://images.pexels.com/photos/1581186/pexels-photo-1581186.jpeg?auto=compress&cs=tinysrgb&w=1200');
+  background-image: url('https://images.pexels.com/photos/1581186/pexels-photo-1581186.jpeg?auto=compress&cs=tinysrgb&w=1600');
   background-size: cover;
   background-position: center;
-  /* Heavy blur so the bokeh texture reads as an ambient backdrop rather than a
-     distracting photo -- the point is mood/depth behind the text, not the image
-     itself being legible. */
-  filter: blur(18px) saturate(120%);
-  transform: scale(1.12); /* offsets blur's edge-softening so no unblurred sliver shows at the panel's border */
+  /* Lighter blur than before -- 18px + a heavy overlay was crushing the photo into
+     near-flat color, defeating the point of using an image at all. This keeps the
+     bokeh texture genuinely visible as a backdrop while still being soft enough not
+     to compete with the text on top of it. */
+  filter: blur(6px) saturate(115%);
+  transform: scale(1.06);
   z-index: 0;
 }
 
 .kaelis-dashboard-hero__overlay {
   position: absolute;
   inset: 0;
+  /* Lighter overlay (was 0.72/0.6/0.75) so the photo actually shows through while
+     still keeping white text readable. */
   background: linear-gradient(
     135deg,
-    rgba(10, 10, 10, 0.72) 0%,
-    rgba(20, 15, 5, 0.6) 60%,
-    rgba(10, 10, 10, 0.75) 100%
+    rgba(10, 10, 10, 0.5) 0%,
+    rgba(20, 15, 5, 0.38) 55%,
+    rgba(10, 10, 10, 0.55) 100%
   );
   z-index: 1;
 }
@@ -909,6 +919,13 @@
     margin-right: -20px;
     padding-left: 20px;
     padding-right: 20px;
+  }
+
+  .kaelis-dashboard-hero {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 32px 20px 20px;
   }
 
   .kaelis-stat-stack {

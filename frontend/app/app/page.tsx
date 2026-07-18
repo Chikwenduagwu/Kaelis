@@ -19,21 +19,28 @@ export default function DashboardPage() {
     <>
       <TopBar title="Overview" />
       <div className="kaelis-page">
-        <div className="kaelis-dashboard-header">
-          <div className="kaelis-dashboard-header__copy">
-            <span className="kaelis-dashboard-header__greeting">Welcome back 👋</span>
-            <h1 className="kaelis-dashboard-header__title">Overview</h1>
-            <p className="kaelis-page__subtitle">Your confidential operations at a glance.</p>
-          </div>
-          <div className="kaelis-dashboard-header__illustration">
-            <VaultIllustration />
-          </div>
-        </div>
+        <div className="kaelis-dashboard-hero">
+          <div className="kaelis-dashboard-hero__bg" />
+          <div className="kaelis-dashboard-hero__overlay" />
 
-        <div className="kaelis-privacy-banner">
-          <LockIcon />
-          <span>All sensitive data is encrypted and private by design.</span>
-          <ChevronIcon />
+          <div className="kaelis-dashboard-header">
+            <div className="kaelis-dashboard-header__copy">
+              <span className="kaelis-dashboard-header__greeting">Welcome back 👋</span>
+              <h1 className="kaelis-dashboard-header__title">Overview</h1>
+              <p className="kaelis-page__subtitle kaelis-page__subtitle--on-dark">
+                Your confidential operations at a glance.
+              </p>
+            </div>
+            <div className="kaelis-dashboard-header__illustration">
+              <VaultIllustration />
+            </div>
+          </div>
+
+          <div className="kaelis-privacy-banner">
+            <LockIcon />
+            <span>All sensitive data is encrypted and private by design.</span>
+            <ChevronIcon />
+          </div>
         </div>
 
         {!isConnected && (
@@ -153,7 +160,7 @@ function LockIcon() {
 function ChevronIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M7.5 5l5 5-5 5" stroke="var(--kaelis-ink-faint)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7.5 5l5 5-5 5" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

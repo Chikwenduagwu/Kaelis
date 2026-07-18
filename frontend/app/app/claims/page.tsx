@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 import { TopBar } from '../components/TopBar';
+import { PageHero } from '../components/PageHero';
 import { TxStatusBanner } from '../components/TxStatusBanner';
 import { useContractTransaction } from '../../../lib/useContractTransaction';
 import { useDecryptHandle } from '../../../lib/useDecryptHandle';
@@ -12,8 +13,8 @@ import { CONTRACTS, KaelisCampaignManagerABI } from '../../../lib/contracts';
 export default function ClaimsPage() {
   const { address, isConnected } = useAccount();
   const publicClient = usePublicClient();
-  const { decryptHandle, state: decryptState } = useDecryptHandle();
-  const { campaigns, isLoading, error, isDeployed } = useEligibleCampaigns(address, decryptHandle);
+  const { decryptHandle, state: decryptState, isReady: isDecryptReady } = useDecryptHandle();
+  const { campaigns, isLoading, error, isDeployed } = useEligibleCampaigns(address, decryptHandle, isDecryptReady);
   const { execute, status, errorMessage, txHash } = useContractTransaction();
 
   const [claimingId, setClaimingId] = useState<bigint | null>(null);
@@ -67,9 +68,10 @@ export default function ClaimsPage() {
     <>
       <TopBar title="Claims" />
       <div className="kaelis-page">
-        <p className="kaelis-page__subtitle">
-          Verify eligibility privately and securely claim your confidential allocation.
-        </p>
+        <PageHero
+          title="Claims"
+          subtitle="Verify eligibility privately and securely claim your confidential allocation."
+        />
 
         {isDeployed && error && (
           <div className="kaelis-empty-banner kaelis-empty-banner--error">{error}</div>
@@ -217,4 +219,4 @@ function CheckBadge() {
       <path d="M6 10.5 8.5 13 14 7" stroke="var(--kaelis-success)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-}
+                }

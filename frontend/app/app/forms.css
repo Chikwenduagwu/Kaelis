@@ -13,6 +13,61 @@
   margin: 0;
 }
 
+/* ---------- Page hero (shared full-bleed photo header, Distributions/Claims/Faucet) ---------- */
+.kaelis-page-hero {
+  position: relative;
+  overflow: hidden;
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
+  margin-top: -32px;
+  margin-bottom: 24px;
+  padding: 36px 40px;
+  color: white;
+}
+
+.kaelis-page-hero__bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.pexels.com/photos/1581186/pexels-photo-1581186.jpeg?auto=compress&cs=tinysrgb&w=1600');
+  background-size: cover;
+  background-position: center;
+  filter: blur(6px) saturate(115%);
+  transform: scale(1.06);
+  z-index: 0;
+}
+
+.kaelis-page-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(10, 10, 10, 0.55) 0%, rgba(20, 15, 5, 0.42) 100%);
+  z-index: 1;
+}
+
+.kaelis-page-hero__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.kaelis-page-hero__title {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin: 0 0 6px;
+  color: white;
+}
+
+.kaelis-page-hero__subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
+}
+
 /* ---------- Wizard steps ---------- */
 .kaelis-wizard-steps {
   display: flex;
@@ -207,41 +262,6 @@
 }
 
 /* ---------- Faucet ---------- */
-.kaelis-faucet-hero {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-card);
-  padding: 28px;
-}
-
-.kaelis-faucet-hero__bg {
-  position: absolute;
-  inset: 0;
-  background-image: url('https://images.pexels.com/photos/1581186/pexels-photo-1581186.jpeg?auto=compress&cs=tinysrgb&w=1200');
-  background-size: cover;
-  background-position: center;
-  filter: blur(18px) saturate(120%);
-  transform: scale(1.12);
-  z-index: 0;
-}
-
-.kaelis-faucet-hero__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(10, 10, 10, 0.72) 0%, rgba(20, 15, 5, 0.6) 100%);
-  z-index: 1;
-}
-
-.kaelis-faucet-hero > p,
-.kaelis-faucet-hero > .kaelis-faucet-card {
-  position: relative;
-  z-index: 2;
-}
-
-.kaelis-faucet-hero > p {
-  margin-bottom: 16px;
-}
-
 .kaelis-faucet-card {
   display: flex;
   flex-direction: column;
@@ -531,6 +551,23 @@
 }
 
 @media (max-width: 768px) {
+  .kaelis-page-hero {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 28px 20px;
+  }
+
+  .kaelis-page-hero__content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .kaelis-page-hero__content > a,
+  .kaelis-page-hero__content > .kaelis-btn {
+    width: 100%;
+  }
+
   .kaelis-field-row {
     flex-direction: column;
     align-items: stretch;
@@ -682,4 +719,4 @@
   cursor: default;
 }
 
-    
+  

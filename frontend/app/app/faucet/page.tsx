@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { TopBar } from '../components/TopBar';
+import { PageHero } from '../components/PageHero';
 
 type ClaimState = 'idle' | 'claiming' | 'success' | 'error';
 
@@ -52,25 +53,23 @@ export default function FaucetPage() {
     <>
       <TopBar title="Faucet" />
       <div className="kaelis-page kaelis-page--narrow">
-        <div className="kaelis-faucet-hero">
-          <div className="kaelis-faucet-hero__bg" />
-          <div className="kaelis-faucet-hero__overlay" />
-          <p className="kaelis-page__subtitle kaelis-page__subtitle--on-dark">
-            Claim confidential KaelisToken on Sepolia to try creating a distribution.
+        <PageHero
+          title="Faucet"
+          subtitle="Claim confidential KaelisToken on Sepolia to try creating a distribution."
+        />
+
+        <div className="kaelis-card kaelis-faucet-card">
+          <div className="kaelis-faucet-card__icon">
+            <FaucetIcon />
+          </div>
+          <h2 className="kaelis-form-title">1,000 kUSD</h2>
+          <p className="kaelis-form-hint">
+            Minted directly to your connected wallet. You can use these to fund a
+            confidential distribution on the Distributions page.
           </p>
 
-          <div className="kaelis-card kaelis-faucet-card">
-            <div className="kaelis-faucet-card__icon">
-              <FaucetIcon />
-            </div>
-            <h2 className="kaelis-form-title">1,000 kUSD</h2>
-            <p className="kaelis-form-hint">
-              Minted directly to your connected wallet. You can use these to fund a
-              confidential distribution on the Distributions page.
-            </p>
-
-            {state === 'idle' && (
-              <button className="kaelis-btn kaelis-btn--primary kaelis-btn--large" onClick={handleClaim}>
+          {state === 'idle' && (
+            <button className="kaelis-btn kaelis-btn--primary kaelis-btn--large" onClick={handleClaim}>
               Claim 1,000 kUSD
             </button>
           )}
@@ -117,7 +116,6 @@ export default function FaucetPage() {
               </button>
             </div>
           )}
-          </div>
         </div>
       </div>
     </>
@@ -155,4 +153,4 @@ function CheckBadge() {
       <path d="M12 20.5 17.5 26 29 14" stroke="var(--kaelis-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-}
+          }

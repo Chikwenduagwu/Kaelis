@@ -34,7 +34,8 @@ export interface EligibleCampaign {
  */
 export function useEligibleCampaigns(
   address: `0x${string}` | undefined,
-  decryptHandle: (handle: `0x${string}`) => Promise<bigint>
+  decryptHandle: (handle: `0x${string}`) => Promise<bigint>,
+  isDecryptReady: boolean
 ) {
   const publicClient = usePublicClient();
   const [campaigns, setCampaigns] = useState<EligibleCampaign[]>([]);
@@ -44,7 +45,13 @@ export function useEligibleCampaigns(
   const isDeployed = CONTRACTS.KaelisCampaignManager !== '0x0000000000000000000000000000000000000000';
 
   useEffect(() => {
-    if (!publicClient || !isDeployed || !address) {
+    // Wait for BOTH an address AND a fully-ready wallet client (isDecryptReady) --
+    // wagmi's useAccount() can resolve `address` on an earlier render than
+    // useWalletClient() resolves the actual signer object, and this effect needs a
+    // real signer to call decryptHandle. Gating on address alone caused a real bug:
+    // the effect would fire in that gap and throw "Wallet not connected" even though
+    // the UI already showed a connected wallet.
+    if (!publicClient || !isDeployed || !address || !isDecryptReady) {
       setIsLoading(false);
       setCampaigns([]);
       return;
@@ -162,7 +169,7 @@ export function useEligibleCampaigns(
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [publicClient, isDeployed, address]);
+  }, [publicClient, isDeployed, address, isDecryptReady]);
 
   return { campaigns, isLoading, error, isDeployed };
-      }
+}

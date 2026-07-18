@@ -160,19 +160,65 @@
   font-size: 0.95rem;
 }
 
+/* ---------- Dashboard hero panel (photo bg + blur + overlay) ---------- */
+.kaelis-dashboard-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  padding: 28px 28px 20px;
+  margin-bottom: 24px;
+  color: white;
+}
+
+.kaelis-dashboard-hero__bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.pexels.com/photos/1581186/pexels-photo-1581186.jpeg?auto=compress&cs=tinysrgb&w=1200');
+  background-size: cover;
+  background-position: center;
+  /* Heavy blur so the bokeh texture reads as an ambient backdrop rather than a
+     distracting photo -- the point is mood/depth behind the text, not the image
+     itself being legible. */
+  filter: blur(18px) saturate(120%);
+  transform: scale(1.12); /* offsets blur's edge-softening so no unblurred sliver shows at the panel's border */
+  z-index: 0;
+}
+
+.kaelis-dashboard-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 10, 10, 0.72) 0%,
+    rgba(20, 15, 5, 0.6) 60%,
+    rgba(10, 10, 10, 0.75) 100%
+  );
+  z-index: 1;
+}
+
+.kaelis-dashboard-hero > .kaelis-dashboard-header,
+.kaelis-dashboard-hero > .kaelis-privacy-banner {
+  position: relative;
+  z-index: 2;
+}
+
+.kaelis-page__subtitle--on-dark {
+  color: rgba(255, 255, 255, 0.82);
+}
+
 /* ---------- Dashboard header ---------- */
 .kaelis-dashboard-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .kaelis-dashboard-header__greeting {
   display: block;
   font-size: 0.85rem;
-  color: var(--kaelis-ink-soft);
+  color: rgba(255, 255, 255, 0.75);
   margin-bottom: 6px;
 }
 
@@ -181,12 +227,14 @@
   font-size: 2rem;
   font-weight: 800;
   margin: 0 0 8px;
+  color: white;
 }
 
 .kaelis-dashboard-header__illustration {
   width: 96px;
   height: 96px;
   flex-shrink: 0;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.35));
 }
 
 .kaelis-dashboard-header__illustration .kaelis-vault-svg {
@@ -202,11 +250,13 @@
   gap: 10px;
   padding: 14px 18px;
   border-radius: var(--radius-control);
-  background: var(--kaelis-gold-wash);
-  border: 1px solid var(--kaelis-gold);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   font-size: 0.86rem;
-  color: var(--kaelis-ink);
-  margin-bottom: 24px;
+  color: white;
+  margin-bottom: 0;
   cursor: pointer;
 }
 
@@ -937,5 +987,4 @@
   .kaelis-app-shell__content {
     padding-bottom: 70px;
   }
-  }
-  
+}

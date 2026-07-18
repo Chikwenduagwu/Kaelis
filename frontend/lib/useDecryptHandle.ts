@@ -21,7 +21,7 @@ type DecryptState =
  * implies near-instant resolution.
  */
 export function useDecryptHandle() {
-  const { getHandleClient } = useNoxHandleClient();
+  const { getHandleClient, isReady } = useNoxHandleClient();
   const [state, setState] = useState<DecryptState>({ status: 'idle' });
 
   const decryptHandle = useCallback(
@@ -42,5 +42,5 @@ export function useDecryptHandle() {
     [getHandleClient]
   );
 
-  return { decryptHandle, state };
+  return { decryptHandle, state, isReady };
 }

@@ -12,9 +12,9 @@ import { CONTRACTS, KaelisCampaignManagerABI } from '../../../lib/contracts';
 export default function ClaimsPage() {
   const { address, isConnected } = useAccount();
   const publicClient = usePublicClient();
-  const { campaigns, isLoading, error, isDeployed } = useEligibleCampaigns(address);
-  const { execute, status, errorMessage, txHash } = useContractTransaction();
   const { decryptHandle, state: decryptState } = useDecryptHandle();
+  const { campaigns, isLoading, error, isDeployed } = useEligibleCampaigns(address, decryptHandle);
+  const { execute, status, errorMessage, txHash } = useContractTransaction();
 
   const [claimingId, setClaimingId] = useState<bigint | null>(null);
   const [claimedResults, setClaimedResults] = useState<Record<string, bigint>>({});
@@ -83,13 +83,19 @@ export default function ClaimsPage() {
         )}
 
         {isLoading && (
-          <div className="kaelis-eligible-list">
-            <div className="kaelis-skeleton-list" style={{ padding: '16px 0' }}>
-              {[0, 1].map((i) => (
-                <div className="kaelis-skeleton-row" key={i} />
-              ))}
+          <>
+            <div className="kaelis-empty-banner">
+              Checking eligibility and decrypting claim status — you may see a few
+              wallet signature prompts.
             </div>
-          </div>
+            <div className="kaelis-eligible-list">
+              <div className="kaelis-skeleton-list" style={{ padding: '16px 0' }}>
+                {[0, 1].map((i) => (
+                  <div className="kaelis-skeleton-row" key={i} />
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
         {!isLoading && isDeployed && !error && campaigns.length === 0 && (
@@ -107,9 +113,10 @@ export default function ClaimsPage() {
             {campaigns.map((c) => {
               const key = c.id.toString();
               const isThisClaiming = claimingId === c.id;
-              const claimedValue = claimedResults[key];
+              const justClaimedValue = claimedResults[key];
               const isPaused = c.status === 1;
               const isCompleted = c.status === 2;
+              const isAlreadyFullyClaimed = c.isFullyClaimed && justClaimedValue === undefined;
 
               return (
                 <div key={key} className="kaelis-eligible-row">
@@ -145,15 +152,25 @@ export default function ClaimsPage() {
                       <p className="kaelis-form-error">{claimError}</p>
                     )}
 
-                    {claimedValue !== undefined && (
+                    {justClaimedValue !== undefined && (
                       <div className="kaelis-eligible-row__result">
                         <CheckBadge />
-                        Claimed {claimedValue.toString()} {c.tokenSymbol}
+                        {justClaimedValue > 0n
+                          ? `Claimed ${justClaimedValue.toString()} ${c.tokenSymbol}`
+                          : 'Already fully claimed — nothing new to claim'}
+                      </div>
+                    )}
+
+                    {isAlreadyFullyClaimed && (
+                      <div className="kaelis-eligible-row__result kaelis-eligible-row__result--muted">
+                        <CheckBadge />
+                        Already claimed {c.claimed.toString()} of {c.allocation.toString()}{' '}
+                        {c.tokenSymbol}
                       </div>
                     )}
                   </div>
 
-                  {claimedValue === undefined && (
+                  {justClaimedValue === undefined && !isAlreadyFullyClaimed && (
                     <button
                       className="kaelis-btn kaelis-btn--primary kaelis-eligible-row__claim-btn"
                       onClick={() => handleClaim(c.id)}
@@ -200,4 +217,4 @@ function CheckBadge() {
       <path d="M6 10.5 8.5 13 14 7" stroke="var(--kaelis-success)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-            }
+}

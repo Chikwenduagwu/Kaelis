@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { TopBar } from '../components/TopBar';
+import { PageHero } from '../components/PageHero';
 import { useRecentCampaigns } from '../dashboard/useRecentCampaigns';
 import { SUPPORTED_TOKENS } from '../../../lib/contracts';
 import { formatRelativeTime } from '../../../lib/formatRelativeTime';
@@ -26,12 +27,15 @@ export default function DistributionsPage() {
     <>
       <TopBar title="Distributions" />
       <div className="kaelis-page">
-        <div className="kaelis-page__header-row">
-          <p className="kaelis-page__subtitle">Create and manage confidential distributions.</p>
-          <Link href="/app/distributions/new" className="kaelis-btn kaelis-btn--primary">
-            + New distribution
-          </Link>
-        </div>
+        <PageHero
+          title="Distributions"
+          subtitle="Create and manage confidential distributions."
+          action={
+            <Link href="/app/distributions/new" className="kaelis-btn kaelis-btn--primary">
+              + New distribution
+            </Link>
+          }
+        />
 
         {!isConnected && (
           <div className="kaelis-empty-banner">Connect your wallet to view distributions.</div>
@@ -120,4 +124,4 @@ function ChevronRightIcon() {
       <path d="M7.5 5l5 5-5 5" stroke="var(--kaelis-ink-faint)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-}
+                    }

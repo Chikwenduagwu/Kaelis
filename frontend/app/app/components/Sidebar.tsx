@@ -11,9 +11,9 @@ const NAV_SECTIONS = [
       { href: '/app/distributions', label: 'Distributions', icon: 'distributions', comingSoon: false },
       { href: '/app/claims', label: 'Claims', icon: 'claims', comingSoon: false },
       { href: '/app/faucet', label: 'Faucet', icon: 'faucet', comingSoon: false },
-      { href: '/app/vesting', label: 'Vesting', icon: 'vesting', comingSoon: true },
-      { href: '/app/payroll', label: 'Payroll', icon: 'payroll', comingSoon: true },
-      { href: '/app/grants', label: 'Grants', icon: 'grants', comingSoon: true },
+      { href: '/app/vesting', label: 'Vesting', icon: 'vesting', comingSoon: false },
+      { href: '/app/payroll', label: 'Payroll', icon: 'payroll', comingSoon: false },
+      { href: '/app/grants', label: 'Grants', icon: 'grants', comingSoon: false },
     ],
   },
   {
@@ -112,4 +112,5 @@ function NavIcon({ name }: { name: string }) {
       <path d={paths[name] ?? paths.dashboard} stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-}
+      }
+    

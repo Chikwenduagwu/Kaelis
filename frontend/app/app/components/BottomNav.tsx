@@ -12,9 +12,9 @@ const PRIMARY_ITEMS = [
 
 const MORE_ITEMS = [
   { href: '/app/faucet', label: 'Faucet', icon: 'faucet' as const, comingSoon: false },
-  { href: '/app/vesting', label: 'Vesting', icon: 'vesting' as const, comingSoon: true },
-  { href: '/app/payroll', label: 'Payroll', icon: 'payroll' as const, comingSoon: true },
-  { href: '/app/grants', label: 'Grants', icon: 'grants' as const, comingSoon: true },
+  { href: '/app/vesting', label: 'Vesting', icon: 'vesting' as const, comingSoon: false },
+  { href: '/app/payroll', label: 'Payroll', icon: 'payroll' as const, comingSoon: false },
+  { href: '/app/grants', label: 'Grants', icon: 'grants' as const, comingSoon: false },
   { href: '/app/overview', label: 'Overview', icon: 'overview' as const, comingSoon: true },
   { href: '/app/reports', label: 'Reports', icon: 'reports' as const, comingSoon: true },
   { href: '/app/team', label: 'Team', icon: 'team' as const, comingSoon: true },
@@ -127,4 +127,4 @@ function NavIcon({ name }: { name: string }) {
       />
     </svg>
   );
-                    }
+}

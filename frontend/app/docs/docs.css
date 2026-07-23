@@ -1,0 +1,175 @@
+.kaelis-docs {
+  min-height: 100vh;
+  background: var(--kaelis-bg);
+}
+
+.kaelis-docs__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--kaelis-line);
+}
+
+.kaelis-docs__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  color: var(--kaelis-ink);
+  text-decoration: none;
+}
+
+.kaelis-docs__cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 18px;
+  border-radius: var(--radius-control);
+  background: var(--kaelis-gold);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.kaelis-docs__layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 48px;
+  padding: 40px;
+}
+
+.kaelis-docs__nav {
+  position: sticky;
+  top: 40px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kaelis-docs__nav a {
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  font-size: 0.88rem;
+  color: var(--kaelis-ink-soft);
+  text-decoration: none;
+}
+
+.kaelis-docs__nav a:hover {
+  background: var(--kaelis-surface);
+  color: var(--kaelis-ink);
+}
+
+.kaelis-docs__content {
+  min-width: 0;
+  max-width: 680px;
+}
+
+.kaelis-docs__content h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.4rem;
+  margin: 0 0 12px;
+}
+
+.kaelis-docs__lede {
+  font-size: 1.05rem;
+  color: var(--kaelis-ink-soft);
+  line-height: 1.6;
+  margin: 0 0 48px;
+}
+
+.kaelis-docs__content section {
+  margin-bottom: 48px;
+  scroll-margin-top: 24px;
+}
+
+.kaelis-docs__content h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin: 0 0 16px;
+  padding-top: 8px;
+  border-top: 1px solid var(--kaelis-line);
+}
+
+.kaelis-docs__content h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 24px 0 10px;
+}
+
+.kaelis-docs__content p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--kaelis-ink-soft);
+  margin: 0 0 14px;
+}
+
+.kaelis-docs__content ul,
+.kaelis-docs__content ol {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--kaelis-ink-soft);
+  padding-left: 22px;
+  margin: 0 0 14px;
+}
+
+.kaelis-docs__content a {
+  color: var(--kaelis-gold);
+}
+
+.kaelis-docs__content code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--kaelis-surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--kaelis-ink);
+}
+
+.kaelis-docs__content pre {
+  background: #0b0c0c;
+  color: #4ade80;
+  padding: 16px 20px;
+  border-radius: var(--radius-control);
+  overflow-x: auto;
+  margin: 0 0 16px;
+}
+
+.kaelis-docs__content pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+@media (max-width: 900px) {
+  .kaelis-docs__layout {
+    grid-template-columns: 1fr;
+    padding: 24px 20px;
+  }
+
+  .kaelis-docs__nav {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--kaelis-line);
+    padding-bottom: 16px;
+    margin-bottom: 8px;
+  }
+
+  .kaelis-docs__header {
+    padding: 16px 20px;
+  }
+  }
+      

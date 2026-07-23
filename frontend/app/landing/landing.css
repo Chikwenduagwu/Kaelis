@@ -328,7 +328,101 @@
   }
 }
 
-/* ==================== Footer ==================== */
+/* ==================== FAQ (no cards, animated accordion) ==================== */
+.kaelis-faq {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 100px 24px 40px;
+}
+
+.kaelis-faq__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  margin: 0 0 32px;
+  text-align: center;
+}
+
+.kaelis-faq__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.kaelis-faq-item {
+  border-bottom: 1px solid var(--kaelis-line);
+}
+
+.kaelis-faq-item__question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 4px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 1.02rem;
+  font-weight: 500;
+  color: var(--kaelis-ink);
+}
+
+.kaelis-faq-item--open .kaelis-faq-item__question {
+  color: var(--kaelis-gold);
+}
+
+.kaelis-faq-item__icon {
+  flex-shrink: 0;
+  transition: transform 250ms ease;
+}
+
+.kaelis-faq-item__icon--open {
+  transform: rotate(135deg);
+}
+
+/* Smooth height animation via grid-template-rows 0fr -> 1fr, the standard technique
+   for animating to "auto" height in CSS -- avoids the janky jump-cut a plain
+   display:none/block toggle would cause, and needs no JS-measured pixel heights. */
+.kaelis-faq-item__answer-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms ease;
+}
+
+.kaelis-faq-item--open .kaelis-faq-item__answer-wrap {
+  grid-template-rows: 1fr;
+}
+
+.kaelis-faq-item__answer-wrap > .kaelis-faq-item__answer {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.kaelis-faq-item__answer {
+  margin: 0 0 22px;
+  padding-right: 32px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-faq-item__prompt {
+  color: var(--kaelis-gold);
+  font-weight: 600;
+}
+
+.kaelis-faq-item__cursor {
+  display: inline-block;
+  width: 7px;
+  height: 1em;
+  background: var(--kaelis-gold);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: kaelis-blink 1s step-start infinite;
+}
+
+
 .kaelis-footer {
   background: var(--kaelis-bg);
   padding: 100px 48px 60px;

@@ -1,7 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { Hero } from './Hero';
 import { TerminalSection } from './TerminalSection';
+import { FAQSection } from './FAQSection';
 
 const FEATURES = [
   {
@@ -31,6 +33,7 @@ export function LandingPage() {
     <main className="kaelis-landing">
       <Hero />
       <TerminalSection />
+      <FAQSection />
 
       <footer className="kaelis-footer" id="docs">
         <div className="kaelis-footer__features">
@@ -44,13 +47,17 @@ export function LandingPage() {
         </div>
 
         <div className="kaelis-footer__links">
-          <a href="https://github.com" target="_blank" rel="noreferrer">
+          <a href="https://github.com/Chikwenduagwu/Kaelis" target="_blank" rel="noreferrer">
             GitHub
           </a>
-          <a href="#docs">Documentation</a>
+          <Link href="/docs">Documentation</Link>
           <span>Built with iExec Nox</span>
           <span>Ethereum Sepolia</span>
-          <a href="https://github.com" target="_blank" rel="noreferrer">
+          <a
+            href="https://github.com/Chikwenduagwu/Kaelis/blob/main/feedback.md"
+            target="_blank"
+            rel="noreferrer"
+          >
             feedback.md
           </a>
           <a href="#" target="_blank" rel="noreferrer">

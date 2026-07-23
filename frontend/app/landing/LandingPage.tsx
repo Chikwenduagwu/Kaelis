@@ -28,6 +28,8 @@ const FEATURES = [
   },
 ];
 
+import { FAQSection } from './FAQSection';
+
 export function LandingPage() {
   return (
     <main className="kaelis-landing">
@@ -83,4 +85,4 @@ function FeatureIcon() {
   );
 }
 
-import { FAQSection } from './FAQSection';
+

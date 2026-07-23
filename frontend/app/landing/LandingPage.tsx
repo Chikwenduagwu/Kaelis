@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Hero } from './Hero';
 import { TerminalSection } from './TerminalSection';
-import { FAQSection } from './FAQSection';
+
 
 const FEATURES = [
   {
@@ -82,3 +82,5 @@ function FeatureIcon() {
     </svg>
   );
 }
+
+import { FAQSection } from './FAQSection';

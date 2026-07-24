@@ -53,6 +53,7 @@ Extending `ERC7984` and adding owner-gated `mint()` and `burn()` took minutes in
 The team's Discord support was excellent once we had a precise reproduction.
 
 We traced a real issue down to a specific missing ACL grant, and the team confirmed the root cause while providing the exact one-line fix in the same thread.
+<img width="720" height="1456" alt="1000618521" src="https://github.com/user-attachments/assets/59c56b7d-d066-47c5-8506-cc54e92d824a" />
 
 </details>
 

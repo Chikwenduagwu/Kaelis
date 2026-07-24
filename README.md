@@ -28,9 +28,7 @@ Privacy-first token distributions, vesting, payroll, and grants where recipient 
 
 > [!IMPORTANT]
 >
-> **Kaelis is built entirely on live infrastructure.**
->
-> The project is deployed on **Ethereum Sepolia** and uses **iExec Nox** confidential smart contracts. There is **no mock data** anywhere in the application. Every campaign, encrypted allocation, claim, and confidential computation shown in the interface comes directly from the deployed contracts.
+> **Kaelis runs entirely on live infrastructure** — deployed on **Ethereum Sepolia** with **iExec Nox** confidential smart contracts. There is no mock data anywhere; every campaign, allocation, claim, and confidential computation shown comes directly from the deployed contracts.
 
 ---
 
@@ -39,7 +37,6 @@ Privacy-first token distributions, vesting, payroll, and grants where recipient 
 - [Overview](#overview)
 - [Why Kaelis?](#why-kaelis)
 - [Features](#features)
-- [Architecture Overview](#architecture-overview)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -47,6 +44,7 @@ Privacy-first token distributions, vesting, payroll, and grants where recipient 
 - [Deploying the Contracts](#deploying-the-contracts)
 - [Verifying the Deployment](#verifying-the-deployment-end-to-end)
 - [Running the Frontend](#running-the-frontend)
+- [Deploying the Frontend](#deploying-the-frontend)
 - [Documentation](#documentation)
 - [License](#license)
 
@@ -54,60 +52,30 @@ Privacy-first token distributions, vesting, payroll, and grants where recipient 
 
 # Overview
 
-Traditional token distribution platforms expose every recipient's allocation publicly on-chain.
+Traditional token distribution platforms expose every recipient's allocation publicly on-chain — employee salaries, investor vesting, community rewards, treasury distributions, and grant funding are all visible to anyone inspecting the chain.
 
-Anyone can inspect the blockchain and immediately discover:
-
-- Employee salaries
-- Investor vesting allocations
-- Community rewards
-- Treasury distributions
-- Grant funding
-
-Kaelis changes this model entirely.
-
-Using **iExec Nox Confidential Computing**, allocation amounts remain encrypted throughout their entire lifecycle:
-
-- Funding
-- Distribution
-- Vesting
-- Payroll
-- Grants
-- Claims
-
-Recipients can securely decrypt only their own allocations.
-
-Organizations can selectively grant viewing rights to auditors when required.
-
-Everyone else only sees that a confidential transaction occurred without learning the underlying values.
-
----
+Kaelis changes this. Using **iExec Nox Confidential Computing**, allocation amounts stay encrypted through funding, distribution, vesting, payroll, grants, and claims. Recipients decrypt only their own allocations, organizations can selectively grant auditors viewing rights, and everyone else sees only that a confidential transaction occurred — not the values behind it.
 
 > [!NOTE]
 >
-> Kaelis demonstrates that privacy and transparency are not mutually exclusive.
->
-> Transaction execution remains publicly verifiable on Ethereum while confidential values remain encrypted using the iExec Nox Protocol.
+> Privacy and transparency aren't mutually exclusive: execution stays publicly verifiable on Ethereum while confidential values remain encrypted via iExec Nox.
 
 ---
 
 # Why Kaelis?
 
-Kaelis was designed to solve one fundamental problem:
+> **Organizations shouldn't have to reveal sensitive financial information simply because they use a public blockchain.**
 
-> **Organizations should not have to reveal sensitive financial information simply because they use a public blockchain.**
+Most Web3 payroll, vesting, and airdrop platforms publish recipient allocations forever. Kaelis combines ERC-7984 confidential tokens, iExec Nox confidential computing, selective disclosure, confidential arithmetic, and encrypted claim flows to keep allocation data private while preserving Ethereum's trust guarantees.
 
-Most Web3 payroll systems, vesting contracts, and airdrop platforms publish recipient allocations forever.
-
-Kaelis introduces confidential token operations by combining:
-
-- ERC-7984 Confidential Tokens
-- iExec Nox Confidential Computing
-- Selective Disclosure
-- Confidential Arithmetic
-- Encrypted Claim Flows
-
-The result is a token operations platform that keeps sensitive allocation data private while preserving the trust guarantees of Ethereum.
+| Traditional Platforms | Kaelis |
+|-----------------------|---------|
+| Public allocations | Confidential allocations |
+| Public payroll | Confidential payroll |
+| Public vesting | Confidential vesting |
+| Public grants | Confidential grants |
+| Public airdrops | Confidential distributions |
+| Everyone sees payment amounts | Only authorized viewers decrypt amounts |
 
 ---
 
@@ -127,86 +95,9 @@ The result is a token operations platform that keeps sensitive allocation data p
 | Live Sepolia Deployment | Every workflow executes against Ethereum Sepolia using deployed contracts. |
 | RPC-Friendly Dashboard | Reads contract state directly instead of relying on expensive `eth_getLogs` scans. |
 
----
-
 > [!TIP]
 >
-> Kaelis intentionally avoids relying on `eth_getLogs` for dashboard state.
->
-> Instead, campaign data is loaded directly through contract reads (`campaignCount()` and `getCampaign()`), avoiding RPC block-range limitations across providers.
-
----
-
-# Architecture Overview
-
-```text
-                    Treasury / Distributor
-                             │
-                             │
-                    Mint Confidential Tokens
-                             │
-                             ▼
-                    KaelisToken (ERC-7984)
-                             │
-                             ▼
-               KaelisCampaignManager Contract
-                             │
-          ┌──────────────────┼──────────────────┐
-          │                  │                  │
-          ▼                  ▼                  ▼
-    Distribution         Payroll          Vesting
-          │                  │                  │
-          └──────────────┬───┴──────────────────┘
-                         │
-                         ▼
-               Encrypted Recipient Allocation
-                         │
-                         ▼
-              iExec Nox Confidential Compute
-                         │
-                         ▼
-                  Recipient Claims Tokens
-                         │
-                         ▼
-             Client-side Authorized Decryption
-```
-
----
-
-## Confidential Claim Flow
-
-```mermaid
-flowchart LR
-
-A[Distributor]
---> B[Encrypt Allocation]
-
-B --> C[iExec Nox]
-
-C --> D[KaelisCampaignManager]
-
-D --> E[Store Encrypted Handle]
-
-E --> F[Recipient]
-
-F --> G[Claim]
-
-G --> H[Authorized Client-side Decryption]
-```
-
----
-
-> [!IMPORTANT]
->
-> Throughout the entire workflow, **allocation amounts never exist as plaintext on-chain**.
->
-> Ethereum verifies the transaction.
->
-> iExec Nox protects the confidential values.
->
-> Kaelis orchestrates the confidential token operation.
-
----
+> Dashboard state is loaded through direct contract reads (`campaignCount()` and `getCampaign()`) rather than `eth_getLogs`, avoiding RPC block-range limitations across providers.
 
 ---
 
@@ -217,76 +108,36 @@ G --> H[Authorized Client-side Decryption]
 
 ```text
 contracts/
-│
-├── KaelisCampaignManager.sol
-│     Confidential distributions, vesting, payroll and grants
-│
-├── KaelisToken.sol
-│     Native ERC-7984 confidential token
-│     (mint / burn / confidential transfers)
-│
+├── KaelisCampaignManager.sol   Confidential distributions, vesting, payroll and grants
+├── KaelisToken.sol             Native ERC-7984 confidential token (mint / burn / confidential transfers)
+
 scripts/
-│
-├── deploy.ts
-│     Deploys KaelisToken and KaelisCampaignManager
-│
-└── demo-flow.ts
-      End-to-end confidential workflow
-      Mint
-      Create Campaign
-      Add Recipient
-      Seal Campaign
-      Claim
-      Decrypt
-│
+├── deploy.ts        Deploys KaelisToken and KaelisCampaignManager
+└── demo-flow.ts      End-to-end confidential workflow: mint → create campaign →
+                       add recipient → seal → claim → decrypt
+
 frontend/
-│
 ├── app/
-│   │
-│   ├── page.tsx
-│   │     Landing page
-│   │
+│   ├── page.tsx        Landing page
 │   ├── app/
-│   │
-│   │   ├── dashboard/
-│   │   ├── distributions/
-│   │   ├── vesting/
-│   │   ├── payroll/
-│   │   ├── grants/
-│   │   ├── claims/
-│   │   ├── faucet/
-│   │   └── docs/
-│   │
-│   └── api/
-│       └── faucet/
-│
-├── lib/
-│     Wagmi configuration
-│     Contract ABIs
-│     Nox SDK
-│     Addresses
-│
+│   │   ├── dashboard/ distributions/ vesting/ payroll/ grants/ claims/ faucet/ docs/
+│   └── api/faucet/
+├── lib/                Wagmi configuration, Contract ABIs, Nox SDK, Addresses
+
 ARCHITECTURE.md
-│
 feedback.md
-│
 README.md
 ```
 
 </details>
 
----
-
 > [!NOTE]
 >
-> The dashboard intentionally avoids event indexing wherever practical.
-> Instead, contract state is queried directly from the deployed contracts, making Kaelis resilient to RPC provider log limitations.
+> The dashboard avoids event indexing wherever practical, querying contract state directly instead — making Kaelis resilient to RPC provider log limitations.
 
 ---
 
 # Prerequisites
-
-Before running Kaelis, ensure the following requirements are available.
 
 | Requirement | Description |
 |-------------|-------------|
@@ -296,51 +147,28 @@ Before running Kaelis, ensure the following requirements are available.
 | Browser Wallet | MetaMask, Rabby or another injected wallet |
 | Network | Ethereum Sepolia |
 
----
-
 > [!TIP]
 >
-> Kaelis currently supports **Injected Wallets only**.
->
-> WalletConnect is intentionally disabled to keep the hackathon prototype focused on the confidential workflow.
+> Kaelis currently supports **Injected Wallets only** — WalletConnect is intentionally disabled to keep the hackathon prototype focused on the confidential workflow.
 
 ---
 
 # Installation
 
-Clone the repository.
-
 ```bash
 git clone https://github.com/Chikwenduagwu/Kaelis.git
-```
-
-Move into the project.
-
-```bash
 cd Kaelis
-```
 
-Install contract dependencies.
-
-```bash
-npm install
-```
-
-Install frontend dependencies.
-
-```bash
-cd frontend
-
+# Install contract dependencies
 npm install
 
-cd ..
+# Install frontend dependencies
+cd frontend && npm install && cd ..
 ```
-
----
 
 > [!IMPORTANT]
 >
-> Install dependencies inside both the root project and the frontend directory before attempting deployment.
+> Install dependencies in both the root project and the `frontend` directory before deploying.
 
 ---
 
@@ -348,30 +176,17 @@ cd ..
 
 Kaelis uses two separate environment files.
 
-- Root environment
-- Frontend environment
-
----
-
 ## Root Environment
-
-Create the root environment file.
 
 ```bash
 cp .env.example .env
 ```
 
-Example:
-
 ```env
 SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
-
 DEPLOYER_PRIVATE_KEY=0xyour_deployer_key
-
 RECIPIENT_PRIVATE_KEY=0xyour_recipient_key
 ```
-
-### Variables
 
 | Variable | Purpose |
 |-----------|---------|
@@ -379,35 +194,19 @@ RECIPIENT_PRIVATE_KEY=0xyour_recipient_key
 | DEPLOYER_PRIVATE_KEY | Deploys contracts and funds campaigns |
 | RECIPIENT_PRIVATE_KEY | Used by the demo script to perform confidential claims |
 
----
-
 ## Frontend Environment
-
-Navigate into the frontend.
 
 ```bash
 cd frontend
-```
-
-Create the local environment.
-
-```bash
 cp .env.local.example .env.local
 ```
 
-Example:
-
 ```env
 NEXT_PUBLIC_KAELIS_TOKEN_ADDRESS=0x...
-
 NEXT_PUBLIC_CAMPAIGN_MANAGER_ADDRESS=0x...
-
 NEXT_PUBLIC_SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
-
 DEPLOYER_PRIVATE_KEY=0xyour_deployer_key
 ```
-
-### Variables
 
 | Variable | Purpose |
 |-----------|---------|
@@ -416,117 +215,39 @@ DEPLOYER_PRIVATE_KEY=0xyour_deployer_key
 | NEXT_PUBLIC_SEPOLIA_RPC_URL | Frontend RPC endpoint |
 | DEPLOYER_PRIVATE_KEY | Server-side faucet minting only |
 
----
-
 > [!WARNING]
 >
-> `DEPLOYER_PRIVATE_KEY` **must never** be prefixed with `NEXT_PUBLIC_`.
->
-> It is used exclusively by the Faucet API Route and should remain server-side.
+> `DEPLOYER_PRIVATE_KEY` **must never** be prefixed with `NEXT_PUBLIC_`. It's used exclusively by the Faucet API route and must stay server-side.
 
 ---
 
 # Deploying the Contracts
 
-Compile the confidential contracts.
-
 ```bash
 npx hardhat compile
-```
-
-Deploy to Ethereum Sepolia.
-
-```bash
 npm run deploy:sepolia
 ```
 
-Deployment automatically creates
-
-```text
-deployments/sepolia.json
-```
-
-containing the deployed addresses for
-
-- KaelisToken
-
-- KaelisCampaignManager
-
-Copy these addresses into
-
-```text
-frontend/.env.local
-```
-
-and into your Vercel Environment Variables before deploying the frontend.
-
----
+Deployment writes deployed addresses to `deployments/sepolia.json`. Copy the `KaelisToken` and `KaelisCampaignManager` addresses into `frontend/.env.local` and your Vercel Environment Variables before deploying the frontend.
 
 ```mermaid
 flowchart LR
-
-A[Compile Contracts]
-
--->
-
-B[Deploy KaelisToken]
-
--->
-
-C[Deploy Campaign Manager]
-
--->
-
-D[Generate deployment JSON]
-
--->
-
-E[Configure Frontend]
-
--->
-
-F[Ready]
+A[Compile Contracts] --> B[Deploy KaelisToken] --> C[Deploy Campaign Manager] --> D[Generate deployment JSON] --> E[Configure Frontend] --> F[Ready]
 ```
 
 ---
 
 # Verifying the Deployment End-to-End
 
-Kaelis includes a complete confidential integration test.
-
-Run
-
 ```bash
 npm run demo:sepolia
 ```
 
-The script performs the complete workflow automatically.
-
-1. Mint confidential tokens
-
-2. Create campaign
-
-3. Add recipient
-
-4. Seal campaign
-
-5. Claim allocation
-
-6. Decrypt confidential result
-
-This verifies the complete confidential pipeline before opening the frontend.
-
----
+The script runs the full workflow automatically: mint confidential tokens → create campaign → add recipient → seal campaign → claim allocation → decrypt confidential result.
 
 > [!IMPORTANT]
 >
-> Unlike many hackathon demos, this script executes against **live Ethereum Sepolia contracts** using **real confidential computation** through iExec Nox.
->
-> No mock values are generated during the process.
-
----
-
-## What Gets Verified?
+> This executes against **live Ethereum Sepolia contracts** using real confidential computation through iExec Nox — no mock values are generated.
 
 | Step | Verification |
 |-------|--------------|
@@ -537,54 +258,24 @@ This verifies the complete confidential pipeline before opening the frontend.
 | Decryption | Recipient decrypts allocation successfully |
 
 ---
----
 
 # Running the Frontend
 
-Start the Next.js development server.
-
 ```bash
 cd frontend
-
 npm run dev
 ```
 
-Open your browser and navigate to:
-
-```text
-http://localhost:3000
-```
-
-Connect an injected wallet on **Ethereum Sepolia**, claim test **kUSD** from the Faucet page, then create your first confidential distribution or check your available claims.
-
----
-
-## Application Flow
+Open `http://localhost:3000`, connect an injected wallet on **Ethereum Sepolia**, claim test **kUSD** from the Faucet page, then create your first confidential distribution or check your available claims.
 
 ```mermaid
 flowchart LR
-
-A[Connect Wallet]
---> B[Claim Test kUSD]
-
-B --> C[Create Campaign]
-
-C --> D[Add Recipients]
-
-D --> E[Seal Campaign]
-
-E --> F[Recipients Claim]
-
-F --> G[Client-side Decryption]
+A[Connect Wallet] --> B[Claim Test kUSD] --> C[Create Campaign] --> D[Add Recipients] --> E[Seal Campaign] --> F[Recipients Claim] --> G[Client-side Decryption]
 ```
-
----
 
 > [!TIP]
 >
-> Every confidential value displayed inside the dashboard is decrypted **client-side** through the Nox SDK.
->
-> No plaintext allocation values are ever stored on-chain.
+> Every confidential value shown in the dashboard is decrypted **client-side** through the Nox SDK. No plaintext allocation values are ever stored on-chain.
 
 ---
 
@@ -592,25 +283,9 @@ F --> G[Client-side Decryption]
 
 Kaelis is optimized for deployment on **Vercel**.
 
-## Step 1
-
-Import the repository into Vercel.
-
----
-
-## Step 2
-
-Set the Root Directory.
-
-```text
-frontend
-```
-
----
-
-## Step 3
-
-Add the required Environment Variables.
+1. Import the repository into Vercel.
+2. Set the Root Directory to `frontend`.
+3. Add the required Environment Variables:
 
 | Variable | Required |
 |-----------|----------|
@@ -619,31 +294,17 @@ Add the required Environment Variables.
 | NEXT_PUBLIC_SEPOLIA_RPC_URL | ✅ |
 | DEPLOYER_PRIVATE_KEY | ✅ (Server Only) |
 
----
-
-## Step 4
-
-Deploy.
-
-Once deployment completes, the dashboard immediately connects to the live Ethereum Sepolia contracts.
-
----
+4. Deploy — the dashboard immediately connects to the live Ethereum Sepolia contracts.
 
 > [!IMPORTANT]
 >
-> `DEPLOYER_PRIVATE_KEY` should always remain a **server-side environment variable**.
->
-> Never expose it using the `NEXT_PUBLIC_` prefix.
+> `DEPLOYER_PRIVATE_KEY` should always remain a **server-side environment variable**. Never expose it with the `NEXT_PUBLIC_` prefix.
 
 ---
 
 # A Note on Local Nox Testing
 
-Kaelis intentionally does **not** run the Docker-backed local Nox infrastructure provided by the Hardhat plugin.
-
-Instead, every confidential operation executes directly against the live **Ethereum Sepolia** deployment, where the official iExec Nox infrastructure is already available.
-
-The project explicitly enables:
+Kaelis intentionally skips the Docker-backed local Nox infrastructure from the Hardhat plugin. Every confidential operation runs directly against the live **Ethereum Sepolia** deployment via:
 
 ```ts
 nox: {
@@ -651,19 +312,11 @@ nox: {
 }
 ```
 
-inside `hardhat.config.ts`.
-
-This keeps development simple while ensuring all confidential operations are executed on real infrastructure rather than a local simulator.
-
-For additional implementation details, see:
-
-- **ARCHITECTURE.md**
+in `hardhat.config.ts` — keeping development simple while ensuring confidential operations run on real infrastructure rather than a local simulator. See **ARCHITECTURE.md** for implementation details.
 
 ---
 
 # Privacy Guarantees
-
-One of Kaelis' primary goals is to demonstrate that confidential smart contracts can preserve privacy without sacrificing blockchain transparency.
 
 | Public Information | Confidential Information |
 |--------------------|--------------------------|
@@ -674,38 +327,13 @@ One of Kaelis' primary goals is to demonstrate that confidential smart contracts
 | Contract addresses | Grant allocation |
 | Campaign status | Total claimed amount |
 
----
-
 > [!NOTE]
 >
-> Kaelis provides **confidentiality**, not anonymity.
->
-> Wallet addresses remain visible on Ethereum exactly as intended by the iExec Nox model.
->
-> What remains confidential are the sensitive financial values attached to those addresses.
-
----
-
-# Why Kaelis?
-
-Traditional blockchain distribution platforms reveal financial information forever.
-
-Kaelis demonstrates a different model.
-
-| Traditional Platforms | Kaelis |
-|-----------------------|---------|
-| Public allocations | Confidential allocations |
-| Public payroll | Confidential payroll |
-| Public vesting | Confidential vesting |
-| Public grants | Confidential grants |
-| Public airdrops | Confidential distributions |
-| Everyone sees payment amounts | Only authorized viewers decrypt amounts |
+> Kaelis provides **confidentiality**, not anonymity. Wallet addresses remain visible on Ethereum as intended by the iExec Nox model — what's confidential are the sensitive financial values attached to those addresses.
 
 ---
 
 # Technology Stack
-
-Kaelis combines modern frontend tooling with confidential smart contract infrastructure.
 
 | Layer | Technology |
 |---------|------------|
@@ -723,8 +351,6 @@ Kaelis combines modern frontend tooling with confidential smart contract infrast
 
 # Documentation
 
-Additional documentation is available throughout the repository.
-
 | Document | Description |
 |-----------|-------------|
 | ARCHITECTURE.md | Complete system architecture and confidential flow |
@@ -735,7 +361,7 @@ Additional documentation is available throughout the repository.
 
 # Hackathon Goals
 
-Kaelis was built around the objectives of the iExec Nox Hackathon.
+Kaelis was built around the objectives of the iExec Nox Hackathon:
 
 - Build a real end-to-end confidential DeFi application.
 - Demonstrate composability with the Nox protocol.
@@ -747,10 +373,6 @@ Kaelis was built around the objectives of the iExec Nox Hackathon.
 ---
 
 # Future Improvements
-
-The current release focuses on confidential token distributions.
-
-Future versions may include:
 
 - Batch campaign creation
 - Multicall transaction execution
@@ -765,38 +387,19 @@ Future versions may include:
 
 # Contributing
 
-Contributions, suggestions, and discussions are welcome.
-
-If you discover an issue or have an idea for improving Kaelis, feel free to open an issue or submit a pull request.
+Contributions, suggestions, and discussions are welcome. If you discover an issue or have an idea for improving Kaelis, feel free to open an issue or submit a pull request.
 
 ---
 
 # License
 
-This project is released under the MIT License.
-
-See:
-
-```text
-LICENSE
-```
-
-for complete licensing information.
+This project is released under the MIT License. See [LICENSE](./LICENSE) for complete licensing information.
 
 ---
 
 # Acknowledgements
 
-Kaelis would not be possible without the incredible work of the following teams.
-
-- iExec
-- iExec Nox
-- OpenZeppelin
-- Ethereum
-- Next.js
-- Vercel
-- Wagmi
-- Viem
+Kaelis would not be possible without the incredible work of iExec, iExec Nox, OpenZeppelin, Ethereum, Next.js, Vercel, Wagmi, and Viem.
 
 Special thanks to the iExec engineering team for their support during development and for helping diagnose a real-world multi-contract ACL issue while building Kaelis.
 

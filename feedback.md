@@ -1,128 +1,282 @@
-# Developer Feedback — iExec Nox
+# Developer Feedback | iExec Nox
 
-Notes from building Kaelis (confidential token distributions, vesting, payroll, and
-grants) on Nox for this hackathon. Written to be genuinely useful to the Nox team,
-covering both what worked well and the friction points we actually hit including one
-real bug the team helped us root-cause and fix mid-build.
+> Feedback from building **Kaelis**, a confidential token distribution platform supporting confidential distributions, vesting, payroll, and grants on the iExec Nox Protocol.
 
-## What worked well
+---
 
-- **The Solidity API surface is small and composable.** Once you internalize that
-  `euint256`/`ebool` values only ever move through `Nox.*` functions and never through
-  native Solidity operators, the mental model clicks quickly. `safeAdd`/`safeSub`
-  returning `(ebool, T)` paired with `select()` is a clean, general pattern for
-  "conditional logic on encrypted data without branching" — we reused it everywhere
-  (claim math, milestone gating).
-- **The ERC-7984 reference implementation (`@iexec-nox/nox-confidential-contracts`)
-  is genuinely drop-in.** Extending `ERC7984` and adding owner-gated `mint`/`burn`
-  took minutes, not hours, and it already handles the harder parts (safe-subtract-
-  based transfers, operator delegation, `confidentialTransferAndCall`).
-- **`@iexec-nox/handle`'s network auto-detection was correct out of the box** for
-  Ethereum Sepolia, no manual gateway/subgraph URL configuration was needed once we
-  pointed a viem/ethers client at the right chain.
-- **The team's Discord support was excellent once we had a precise repro.** We
-  traced a real bug down to a specific missing ACL grant and the team confirmed the
-  root cause and gave the exact one-line fix within the same thread — see below.
+## Table of Contents
 
-## The real bug we hit (and the fix)
+- [What Worked Well](#what-worked-well)
+- [The Real Bug We Hit (and the Fix)](#the-real-bug-we-hit-and-the-fix)
+- [Other Friction Points](#other-friction-points)
+- [Suggestions](#suggestions)
+- [One UX Idea We Didn't Have Time to Build](#one-ux-idea-we-didnt-have-time-to-build)
+- [Final Thoughts](#final-thoughts)
 
-Our `KaelisCampaignManager.claim()` computes a `claimable` amount as a *fresh*
-encrypted handle (via `Nox.mul`/`Nox.div`/`Nox.safeSub`/`Nox.select`), then calls
-`IERC7984(token).confidentialTransfer(recipient, claimable)` so the token contract
-pays out from a pool the manager holds. This reliably reverted with
-`NotAllowed(bytes32 handle, address account)`, where `account` decoded to the
-**token contract's own address** — not the manager, not the recipient.
+---
 
-Root cause (confirmed by the Nox team): `confidentialTransfer(address, euint256)`
-only checks that the *caller* is allowed on the amount handle
-(`require(Nox.isAllowed(amount, msg.sender))`). Internally it then executes
-`Nox.transfer(...)` **as the token contract**, and `NoxCompute` authorizes based on
-whoever actually executes that low-level operation — the token, not the caller. The
-`externalEuint256 + proof` overload of `confidentialTransfer` sidesteps this because
-`fromExternal` auto-grants the token transient access as a side effect; the plain
-`euint256` overload (the one you use when passing an already-computed handle, as we
-were) does not, and the calling contract is expected to grant it explicitly.
+# What Worked Well
 
-**Fix**, one line before the transfer call:
+<details open>
+<summary><strong>Expand Section</strong></summary>
 
-\`\`\`solidity
+### Solidity API
+
+The Solidity API surface is small and composable.
+
+Once you internalize that `euint256` and `ebool` values only ever move through `Nox.*` functions and never through native Solidity operators, the mental model clicks quickly.
+
+`safeAdd()` and `safeSub()` returning `(ebool, T)` paired with `select()` is a clean, general pattern for conditional logic on encrypted data without branching. We reused it throughout Kaelis for claim calculations and milestone gating.
+
+---
+
+### ERC-7984
+
+The ERC-7984 reference implementation (`@iexec-nox/nox-confidential-contracts`) is genuinely drop-in.
+
+Extending `ERC7984` and adding owner-gated `mint()` and `burn()` took minutes instead of hours. It already handles the difficult parts including:
+
+- Safe subtract based transfers
+- Operator delegation
+- `confidentialTransferAndCall`
+
+---
+
+### Handle SDK
+
+`@iexec-nox/handle` correctly detected Ethereum Sepolia without any manual gateway or subgraph configuration after pointing a viem/ethers client at the correct chain.
+
+---
+
+### Discord Support
+
+The team's Discord support was excellent once we had a precise reproduction.
+
+We traced a real issue down to a specific missing ACL grant, and the team confirmed the root cause while providing the exact one-line fix in the same thread.
+
+</details>
+
+---
+
+# The Real Bug We Hit (and the Fix)
+
+<details open>
+<summary><strong>Expand Section</strong></summary>
+
+Our `KaelisCampaignManager.claim()` computes a `claimable` amount as a fresh encrypted handle using:
+
+- `Nox.mul`
+- `Nox.div`
+- `Nox.safeSub`
+- `Nox.select`
+
+The manager then calls:
+
+```solidity
+IERC7984(token).confidentialTransfer(recipient, claimable);
+```
+
+to pay recipients from the manager's pooled balance.
+
+This consistently reverted with:
+
+```
+NotAllowed(bytes32 handle, address account)
+```
+
+where `account` decoded to **the token contract's own address**, not the manager contract or recipient.
+
+## Root Cause
+
+The Nox team confirmed that `confidentialTransfer(address, euint256)` only checks that the caller has permission on the encrypted handle.
+
+Internally, however, the token contract executes `Nox.transfer(...)` as itself.
+
+This means the token contract also requires transient permission on the encrypted handle.
+
+The `externalEuint256 + proof` overload grants this automatically as part of `fromExternal()`, while the plain `euint256` overload expects the calling contract to grant access explicitly.
+
+## Fix
+
+Before calling the transfer:
+
+```solidity
 Nox.allowThis(claimable);
 Nox.allow(claimable, msg.sender);
-Nox.allowTransient(claimable, campaign.token); // token needs access to run its
-                                                 // internal Nox.transfer
-IERC7984(campaign.token).confidentialTransfer(msg.sender, claimable);
-\`\`\`
+Nox.allowTransient(claimable, campaign.token);
 
-This is a genuinely easy trap to fall into for any multi-contract confidential flow
-(a manager/vault contract calling into a token contract with a handle it just
-computed), and it isn't obvious from the ERC7984Base source alone — you have to trace
-through to `_updateWithOptimizedPrimitives` to see where the token needs access it was
-never given. **Suggestion**: call this out explicitly in the ERC-7984 guide, ideally
-with the exact wording "if you're calling `confidentialTransfer(address, euint256)`
-from another contract with a handle that contract computed itself, you must
-`allowTransient` the token on that handle first" we would have found this in
-minutes instead of days of investigation with that one sentence in the docs.
+IERC7984(campaign.token).confidentialTransfer(
+    msg.sender,
+    claimable
+);
+```
 
-## Other friction points
+This is an easy trap for any multi-contract confidential flow such as vaults, escrow systems, payroll contracts, or token distributors.
 
-1. **Docs vs. reality gap on package names and networks.** The developer resources
-   page links to `docs.iex.ec/nox-protocol/...`, and separately we found real,
-   working npm packages (`@iexec-nox/nox-protocol-contracts`,
-   `@iexec-nox/nox-confidential-contracts`, `@iexec-nox/handle`) mostly by going
-   straight to `npm view`/`npm search` against the `@iexec-nox` org, since the docs'
-   prose doesn't surface the exact package names directly. A single "Packages" page
-   linking npm name -> purpose -> version would save real time.
-2. **The Hardhat plugin's Docker dependency isn't clearly optional in the getting
-   started flow.** `skipTestOverride` exists as an escape hatch for Sepolia-only,
-   no-Docker workflows (useful for cloud IDEs / CI without privileged mode), but we
-   only discovered it was possible by reading the plugin's own option list, not from
-   guided docs.
-3. **The gap between "transaction confirmed" and "value is decryptable" isn't called
-   out prominently.** We found the retry/backoff behavior in `decrypt()`
-   (`NotYetComputedHandleError`) only by reading SDK source. A note in the Hello
-   World guide "expect a real async gap between a tx confirming and its result
-   being decryptable, budget your UI for it" would help frontend developers avoid
-   either over-polling or building a UI that assumes instant decryption.
-4. **No documented pattern for "fund a manager/vault contract, pay out later"** —
-   this is a very common shape (any escrow, vault, payroll, or distributor contract)
-   and is exactly where the `allowTransient` gap above bit us. A worked example in
-   the guides for this specific pattern would have real value beyond just our case.
-5. **RPC provider limits on `eth_getLogs` vary wildly and aren't Nox-specific, but
-   they bit us hard while building the dashboard.** thirdweb's public Sepolia RPC
-   caps at 1,000 blocks/call; Alchemy's free tier caps at just 10. Not a Nox issue
-   directly, but worth a callout in the Hardhat/frontend guides that event-log-based
-   dashboards should either use a paid RPC tier or, as we ended up doing, prefer
-   plain `getCampaign`-style contract reads over `getLogs` where the data volume is
-   small enough that a full scan is viable.
+It is not immediately obvious from the ERC7984Base source because the required permission only becomes apparent after tracing into `_updateWithOptimizedPrimitives`.
 
-## Suggestions
+### Documentation Suggestion
 
-- Publish a single canonical "API Reference" index page linking every `Nox.sol`
-  function to a one-line description + signature, generated from source so it can
-  never drift from the actual package.
-- Add the `allowTransient`-for-multi-contract-flows callout described above to the
-  ERC-7984 guide specifically — this is likely to trip up anyone building a vault,
-  escrow, payroll, or distributor pattern, not just us.
-- Add a short "latency model" diagram to the Hello World guide: tx submitted → event
-  emitted → Runner picks up → TEE computes → result decryptable, with rough timing
-  expectations on each hop.
-- Consider a `nox-hardhat-starter` variant (or a documented flag) explicitly framed
-  as "Sepolia-first, no local Docker" for teams in constrained dev environments.
+Explicitly document this pattern in the ERC-7984 guide.
 
-## One UX idea we didn't have time to build
+For example:
 
-Our creation flow currently needs several separate wallet signatures for one logical
-action (fund the pool, create the campaign, add each recipient, seal it). We looked
-into collapsing this into a single signature via a `Multicall`-style batch function
-on our own contract (encode each call, execute them all in one transaction), which is
-a standard Solidity pattern, not a Nox-specific one but it's a real contract change
-we didn't have time to redeploy and re-verify before submission. Flagging it here in
-case it's useful context, and it might be worth iExec highlighting this pattern in
-the guides too, since confidential-computing dApps in particular tend to have many
-small encrypt-then-call steps that would benefit from batching.
+> If you're calling `confidentialTransfer(address, euint256)` from another contract using a handle computed inside that contract, you must grant the token contract transient access with `allowTransient()` before calling `confidentialTransfer()`.
 
-Overall the actual primitives are well-designed, the ERC-7984 reference
-implementation saved us real time, and the one real bug we hit had a fast, precise
-resolution once we had a clear repro the friction was almost entirely in discovery
-(finding the right package, the right pattern, the right async-timing expectations)
-rather than in the API itself once found.
+That single sentence would likely save future developers days of debugging.
+
+</details>
+
+---
+
+# Other Friction Points
+
+<details open>
+<summary><strong>Expand Section</strong></summary>
+
+## 1. Package Discovery
+
+The documentation links to `docs.iex.ec/nox-protocol/...`, but the exact npm packages are not surfaced prominently.
+
+We discovered packages such as:
+
+- `@iexec-nox/nox-protocol-contracts`
+- `@iexec-nox/nox-confidential-contracts`
+- `@iexec-nox/handle`
+
+mostly by searching npm directly.
+
+A dedicated Packages page listing package names, purpose, and current versions would save significant onboarding time.
+
+---
+
+## 2. Hardhat Plugin
+
+The Hardhat plugin's Docker dependency is not clearly described as optional.
+
+We only discovered `skipTestOverride` by reading plugin options rather than documentation.
+
+A documented Sepolia-only workflow without Docker would help developers using cloud IDEs or CI.
+
+---
+
+## 3. Async Decryption
+
+The gap between:
+
+- Transaction confirmed
+
+and
+
+- Value decryptable
+
+is not highlighted enough.
+
+We only discovered the retry behavior (`NotYetComputedHandleError`) by reading SDK source.
+
+A note in the Hello World guide explaining that decrypted values may become available shortly after transaction confirmation would help frontend developers build better user experiences.
+
+---
+
+## 4. Vault / Manager Pattern
+
+There is currently no documented pattern for:
+
+- Fund manager contract
+- Compute confidential values
+- Pay recipients later
+
+This architecture is common for:
+
+- Escrow
+- Payroll
+- Token distribution
+- Treasury management
+
+A worked example covering this pattern would be extremely valuable.
+
+---
+
+## 5. RPC Limits
+
+RPC providers impose very different `eth_getLogs` limits.
+
+Examples:
+
+- Thirdweb public Sepolia RPC: 1,000 blocks
+- Alchemy free tier: 10 blocks
+
+This is not a Nox issue directly, but frontend documentation could recommend contract reads over large log scans when appropriate.
+
+</details>
+
+---
+
+# Suggestions
+
+<details open>
+<summary><strong>Expand Section</strong></summary>
+
+- Publish a canonical API Reference generated directly from `Nox.sol`.
+
+- Add explicit documentation for `allowTransient()` in multi-contract confidential flows.
+
+- Include a latency diagram in the Hello World guide:
+
+```
+Transaction Submitted
+        ↓
+Event Emitted
+        ↓
+Runner Picks Up
+        ↓
+TEE Computes
+        ↓
+Result Decryptable
+```
+
+- Consider a Sepolia-first version of `nox-hardhat-starter` for cloud development environments without Docker.
+
+</details>
+
+---
+
+# One UX Idea We Didn't Have Time to Build
+
+<details open>
+<summary><strong>Expand Section</strong></summary>
+
+Our creation flow currently requires several wallet signatures for one logical operation.
+
+For example:
+
+- Fund campaign
+- Create campaign
+- Add recipients
+- Seal campaign
+
+We considered batching these using a Multicall-style function executed in a single transaction.
+
+This is a standard Solidity pattern rather than a Nox-specific feature, but it would significantly improve UX for confidential applications where multiple encrypt-then-call operations occur sequentially.
+
+Highlighting batching patterns in the documentation could help future developers build smoother confidential application flows.
+
+</details>
+
+---
+
+# Final Thoughts
+
+Overall, the underlying primitives are well designed.
+
+The ERC-7984 reference implementation saved us a significant amount of development time, and the one major issue we encountered had a fast and precise resolution once we produced a clear reproduction.
+
+Most of the friction came from discovery:
+
+- Finding the correct packages
+- Discovering recommended patterns
+- Understanding asynchronous decryption timing
+
+Once those pieces were understood, the API itself was straightforward and enjoyable to work with.
+
+Kaelis was a great opportunity to explore what confidential smart contracts can enable, and we hope this feedback helps improve the experience for future builders.

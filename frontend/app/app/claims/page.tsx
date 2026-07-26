@@ -8,6 +8,7 @@ import { TxStatusBanner } from '../components/TxStatusBanner';
 import { useContractTransaction } from '../../../lib/useContractTransaction';
 import { useDecryptHandle } from '../../../lib/useDecryptHandle';
 import { useEligibleCampaigns } from './useEligibleCampaigns';
+import { useClaimStatus } from './useClaimStatus';
 import { usePassportScore } from './usePassportScore';
 import { CONTRACTS, KaelisCampaignManagerABI } from '../../../lib/contracts';
 
@@ -15,23 +16,18 @@ export default function ClaimsPage() {
   const { address, isConnected } = useAccount();
   const publicClient = usePublicClient();
   const { decryptHandle, state: decryptState, isReady: isDecryptReady } = useDecryptHandle();
-  const { campaigns, isLoading, error, isDeployed } = useEligibleCampaigns(address, decryptHandle, isDecryptReady);
+  const { campaigns, isLoading, error, isDeployed } = useEligibleCampaigns(address);
   const { execute, status, errorMessage, txHash } = useContractTransaction();
-  const { state: passportState, score: passportScore, threshold: passportThreshold } = usePassportScore(address);
+
+  const passport = usePassportScore(address);
+  const claimStatus = useClaimStatus(address, decryptHandle);
 
   const [claimingId, setClaimingId] = useState<bigint | null>(null);
   const [claimedResults, setClaimedResults] = useState<Record<string, bigint>>({});
   const [claimError, setClaimError] = useState<string | null>(null);
 
-  // Client-side gate only: this prevents casual/bot claiming through the UI, but a
-  // wallet already on a campaign's recipient list could still call claim() directly
-  // against the contract, bypassing this check entirely. Real enforcement would need
-  // the score checked on-chain (e.g. via an oracle/attestation the contract reads),
-  // which isn't in place here -- treat this as a UX deterrent, not a security boundary.
-  const passportGatePassed = passportState === 'passed';
-
   async function handleClaim(campaignId: bigint) {
-    if (!address || !passportGatePassed) return;
+    if (!address) return;
     setClaimingId(campaignId);
     setClaimError(null);
 
@@ -82,26 +78,6 @@ export default function ClaimsPage() {
           subtitle="Verify eligibility privately and securely claim your confidential allocation."
         />
 
-        {passportState === 'checking' && (
-          <div className="kaelis-empty-banner">Checking your Gitcoin Passport score…</div>
-        )}
-
-        {passportState === 'error' && (
-          <div className="kaelis-empty-banner kaelis-empty-banner--error">
-            Couldn&apos;t verify your Passport score right now. Try refreshing the page.
-          </div>
-        )}
-
-        {passportState === 'failed' && (
-          <div className="kaelis-empty-banner kaelis-empty-banner--error">
-            Your Gitcoin Passport score ({passportScore?.toFixed(1)}) is below the required
-            threshold ({passportThreshold}). Claiming is disabled until you verify more stamps.{' '}
-            <a href="https://app.passport.xyz" target="_blank" rel="noreferrer">
-              Verify on Passport
-            </a>
-          </div>
-        )}
-
         {isDeployed && error && (
           <div className="kaelis-empty-banner kaelis-empty-banner--error">{error}</div>
         )}
@@ -115,10 +91,7 @@ export default function ClaimsPage() {
 
         {isLoading && (
           <>
-            <div className="kaelis-empty-banner">
-              Checking eligibility and decrypting claim status — you may see a few
-              wallet signature prompts.
-            </div>
+            <div className="kaelis-empty-banner">Checking which campaigns you&apos;re eligible for…</div>
             <div className="kaelis-eligible-list">
               <div className="kaelis-skeleton-list" style={{ padding: '16px 0' }}>
                 {[0, 1].map((i) => (
@@ -147,7 +120,11 @@ export default function ClaimsPage() {
               const justClaimedValue = claimedResults[key];
               const isPaused = c.status === 1;
               const isCompleted = c.status === 2;
-              const isAlreadyFullyClaimed = c.isFullyClaimed && justClaimedValue === undefined;
+
+              const claimCheckState = claimStatus.statusById[key] ?? 'idle';
+              const claimResult = claimStatus.resultById[key];
+              const claimCheckError = claimStatus.errorById[key];
+              const isAlreadyFullyClaimed = claimResult?.isFullyClaimed && justClaimedValue === undefined;
 
               return (
                 <div key={key} className="kaelis-eligible-row">
@@ -164,6 +141,40 @@ export default function ClaimsPage() {
                       {isCompleted && ' · Completed'}
                     </span>
 
+                    {/* Step 1: Passport / human status -- shared across all rows */}
+                    {passport.state === 'idle' && (
+                      <p className="kaelis-form-hint">Verify you&apos;re human to continue.</p>
+                    )}
+                    {passport.state === 'checking' && (
+                      <p className="kaelis-form-hint">Checking Gitcoin Passport score…</p>
+                    )}
+                    {passport.state === 'failed' && (
+                      <p className="kaelis-form-error">
+                        Passport score ({passport.score?.toFixed(1)}) is below the required
+                        threshold ({passport.threshold}).{' '}
+                        <a href="https://app.passport.xyz" target="_blank" rel="noreferrer">
+                          Verify on Passport
+                        </a>
+                      </p>
+                    )}
+                    {passport.state === 'error' && (
+                      <p className="kaelis-form-error">Couldn&apos;t verify Passport score. Try again.</p>
+                    )}
+
+                    {/* Step 2: Claim status, only shown once passport has passed */}
+                    {passport.state === 'passed' && claimCheckState === 'idle' && (
+                      <p className="kaelis-form-hint">Human status verified. Check your claim status next.</p>
+                    )}
+                    {claimCheckState === 'checking' && (
+                      <div className="kaelis-eligible-row__status">
+                        <p className="kaelis-form-hint">Decrypting your claim status…</p>
+                      </div>
+                    )}
+                    {claimCheckState === 'error' && (
+                      <p className="kaelis-form-error">{claimCheckError}</p>
+                    )}
+
+                    {/* Step 3: claim in progress */}
                     {isThisClaiming && (
                       <div className="kaelis-eligible-row__status">
                         <TxStatusBanner
@@ -192,25 +203,55 @@ export default function ClaimsPage() {
                       </div>
                     )}
 
-                    {isAlreadyFullyClaimed && (
+                    {isAlreadyFullyClaimed && claimResult && (
                       <div className="kaelis-eligible-row__result kaelis-eligible-row__result--muted">
                         <CheckBadge />
-                        Already claimed {c.claimed.toString()} of {c.allocation.toString()}{' '}
-                        {c.tokenSymbol}
+                        Already claimed {claimResult.claimed.toString()} of{' '}
+                        {claimResult.allocation.toString()} {c.tokenSymbol}
                       </div>
                     )}
                   </div>
 
-                  {justClaimedValue === undefined && !isAlreadyFullyClaimed && (
+                  {/* Row action button -- exactly one of these renders at a time,
+                      walking the row through: human check -> claim-status check ->
+                      claim / already-claimed. */}
+                  {passport.state !== 'passed' && passport.state !== 'failed' && (
                     <button
-                      className="kaelis-btn kaelis-btn--primary kaelis-eligible-row__claim-btn"
-                      onClick={() => handleClaim(c.id)}
-                      disabled={isThisClaiming || isPaused || isCompleted || !passportGatePassed}
-                      title={!passportGatePassed ? 'Passport score too low to claim' : undefined}
+                      className="kaelis-btn kaelis-btn--secondary kaelis-eligible-row__claim-btn"
+                      onClick={() => passport.check()}
+                      disabled={passport.state === 'checking'}
                     >
-                      {isThisClaiming ? 'Claiming…' : 'Claim'}
+                      {passport.state === 'checking' ? 'Checking…' : 'Check Human Status'}
                     </button>
                   )}
+
+                  {passport.state === 'passed' &&
+                    (claimCheckState === 'idle' || claimCheckState === 'error') && (
+                      <button
+                        className="kaelis-btn kaelis-btn--secondary kaelis-eligible-row__claim-btn"
+                        onClick={() => claimStatus.checkClaimStatus(c.id)}
+                      >
+                        {claimCheckState === 'error' ? 'Retry Claim Status' : 'Check Claim Status'}
+                      </button>
+                    )}
+
+                  {claimCheckState === 'checking' && (
+                    <button className="kaelis-btn kaelis-btn--secondary kaelis-eligible-row__claim-btn" disabled>
+                      Checking…
+                    </button>
+                  )}
+
+                  {claimCheckState === 'done' &&
+                    justClaimedValue === undefined &&
+                    !isAlreadyFullyClaimed && (
+                      <button
+                        className="kaelis-btn kaelis-btn--primary kaelis-eligible-row__claim-btn"
+                        onClick={() => handleClaim(c.id)}
+                        disabled={isThisClaiming || isPaused || isCompleted}
+                      >
+                        {isThisClaiming ? 'Claiming…' : 'Claim'}
+                      </button>
+                    )}
                 </div>
               );
             })}
@@ -249,4 +290,4 @@ function CheckBadge() {
       <path d="M6 10.5 8.5 13 14 7" stroke="var(--kaelis-success)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-}
+    }

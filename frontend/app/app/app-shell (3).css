@@ -1,0 +1,1028 @@
+.kaelis-app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--kaelis-surface);
+}
+
+/* ---------- Sidebar ---------- */
+.kaelis-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--kaelis-bg);
+  border-right: 1px solid var(--kaelis-line);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.kaelis-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+}
+
+.kaelis-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.kaelis-sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kaelis-sidebar__section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kaelis-ink-faint);
+  padding: 0 12px 8px;
+}
+
+.kaelis-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  color: var(--kaelis-ink-soft);
+  text-decoration: none;
+  font-size: 0.9rem;
+  min-height: 44px;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.kaelis-sidebar__link:hover {
+  background: var(--kaelis-surface);
+  color: var(--kaelis-ink);
+}
+
+.kaelis-sidebar__link--active {
+  background: var(--kaelis-gold-wash);
+  color: var(--kaelis-gold);
+  font-weight: 500;
+}
+
+.kaelis-sidebar__link--disabled {
+  color: var(--kaelis-ink-faint);
+  cursor: default;
+  justify-content: space-between;
+}
+
+.kaelis-sidebar__link--disabled:hover {
+  background: transparent;
+}
+
+.kaelis-coming-soon-badge {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--kaelis-ink-faint);
+  background: var(--kaelis-surface);
+  border: 1px solid var(--kaelis-line);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+/* ---------- Content area ---------- */
+.kaelis-app-shell__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.kaelis-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 40px;
+  background: var(--kaelis-bg);
+  border-bottom: 1px solid var(--kaelis-line);
+}
+
+.kaelis-topbar__title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.kaelis-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.kaelis-network-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--kaelis-line);
+  font-size: 0.8rem;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-network-pill--warn {
+  border-color: var(--kaelis-warning);
+  color: var(--kaelis-warning);
+}
+
+.kaelis-network-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kaelis-success);
+}
+
+.kaelis-network-pill--warn .kaelis-network-dot {
+  background: var(--kaelis-warning);
+}
+
+/* Wallet address pill -- sits alongside the network pill in the topbar (see
+   Faucet reference: "Sepolia" + "0xf2F2...A1fE" side by side). Monospaced,
+   slightly more muted than the network pill since it's identity, not status. */
+.kaelis-wallet-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--kaelis-line);
+  background: var(--kaelis-surface);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-wallet-pill svg {
+  flex-shrink: 0;
+  color: var(--kaelis-ink-faint);
+}
+
+.kaelis-page {
+  padding: 32px 40px 60px;
+  max-width: 1280px;
+}
+
+.kaelis-page__subtitle {
+  color: var(--kaelis-ink-soft);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* ---------- Dashboard hero panel (full-bleed photo bg + light blur + overlay) ---------- */
+/* Deliberately full-bleed, not a boxed card -- breaks out of .kaelis-page's own
+   horizontal padding via matching negative margins (same technique already used for
+   .kaelis-stat-stack / .kaelis-activity-chart / .kaelis-recent-campaigns), square
+   corners, spanning true edge-to-edge width. */
+.kaelis-dashboard-hero {
+  position: relative;
+  overflow: hidden;
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
+  margin-top: -32px;
+  padding: 44px 40px 28px;
+  margin-bottom: 24px;
+  color: white;
+}
+
+.kaelis-dashboard-hero__bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.pexels.com/photos/1581186/pexels-photo-1581186.jpeg?auto=compress&cs=tinysrgb&w=1600');
+  background-size: cover;
+  background-position: center;
+  /* Lighter blur than before -- 18px + a heavy overlay was crushing the photo into
+     near-flat color, defeating the point of using an image at all. This keeps the
+     bokeh texture genuinely visible as a backdrop while still being soft enough not
+     to compete with the text on top of it. */
+  filter: blur(6px) saturate(115%);
+  transform: scale(1.06);
+  z-index: 0;
+}
+
+.kaelis-dashboard-hero__overlay {
+  position: absolute;
+  inset: 0;
+  /* Lighter overlay (was 0.72/0.6/0.75) so the photo actually shows through while
+     still keeping white text readable. */
+  background: linear-gradient(
+    135deg,
+    rgba(10, 10, 10, 0.5) 0%,
+    rgba(20, 15, 5, 0.38) 55%,
+    rgba(10, 10, 10, 0.55) 100%
+  );
+  z-index: 1;
+}
+
+.kaelis-dashboard-hero > .kaelis-dashboard-header,
+.kaelis-dashboard-hero > .kaelis-privacy-banner {
+  position: relative;
+  z-index: 2;
+}
+
+.kaelis-page__subtitle--on-dark {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* ---------- Dashboard header ---------- */
+.kaelis-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.kaelis-dashboard-header__greeting {
+  display: block;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 6px;
+}
+
+.kaelis-dashboard-header__title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: white;
+}
+
+.kaelis-dashboard-header__illustration {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.35));
+}
+
+.kaelis-dashboard-header__illustration .kaelis-vault-svg {
+  width: 100%;
+  height: 100%;
+  animation: none;
+}
+
+/* ---------- Privacy banner ---------- */
+.kaelis-privacy-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 0.86rem;
+  color: white;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.kaelis-privacy-banner span {
+  flex: 1;
+}
+
+/* ---------- Activity chart ---------- */
+/* Full-bleed: breaks out of .kaelis-page's horizontal padding (32px desktop / 20px
+   mobile -- see the padding values on .kaelis-page and its responsive overrides
+   below) using equal negative margins, so the chart genuinely spans the full
+   viewport width edge-to-edge with square corners and no card border, rather than
+   being another inset, rounded, bordered card like the stat tiles above it. */
+.kaelis-activity-chart {
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
+  margin-bottom: 24px;
+  background: var(--kaelis-surface-raised);
+  border-top: 1px solid var(--kaelis-line);
+  border-bottom: 1px solid var(--kaelis-line);
+  border-radius: 0;
+  padding: 20px 40px 16px;
+}
+
+.kaelis-activity-chart__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.kaelis-activity-chart__header h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.kaelis-activity-chart__legend {
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-activity-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kaelis-activity-chart__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.kaelis-activity-chart__dot--gold {
+  background: var(--kaelis-gold);
+}
+
+.kaelis-activity-chart__dot--green {
+  background: var(--kaelis-success);
+}
+
+.kaelis-activity-chart__svg {
+  width: 100%;
+  height: 200px;
+  display: block;
+}
+
+.kaelis-activity-chart__footnote {
+  display: block;
+  text-align: center;
+  font-size: 0.76rem;
+  color: var(--kaelis-ink-faint);
+  margin-top: 8px;
+}
+
+/* ---------- Banners ---------- */
+.kaelis-empty-banner {
+  padding: 14px 18px;
+  border-radius: var(--radius-control);
+  background: var(--kaelis-gold-wash);
+  border: 1px solid var(--kaelis-gold);
+  color: var(--kaelis-ink);
+  font-size: 0.88rem;
+  margin-bottom: 24px;
+}
+
+.kaelis-empty-banner code {
+  font-family: var(--font-mono);
+  background: rgba(0, 0, 0, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+.kaelis-empty-banner--error {
+  background: #fdf0ef;
+  border-color: var(--kaelis-danger);
+}
+
+/* ---------- Network mismatch banner ---------- */
+.kaelis-network-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px 24px;
+  background: #fdf3e3;
+  border-bottom: 1px solid var(--kaelis-warning);
+}
+
+.kaelis-network-banner__text {
+  font-size: 0.88rem;
+  color: var(--kaelis-ink);
+  flex: 1;
+  min-width: 200px;
+}
+
+.kaelis-network-banner__text strong {
+  color: var(--kaelis-warning);
+}
+
+.kaelis-network-banner__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: var(--radius-control);
+  border: none;
+  background: var(--kaelis-warning);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: opacity 150ms ease;
+}
+
+.kaelis-network-banner__button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.kaelis-network-banner__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.kaelis-network-banner__error {
+  width: 100%;
+  font-size: 0.8rem;
+  color: var(--kaelis-danger);
+}
+
+/* ---------- Stat stack (collapsed, full-width rows) ---------- */
+/* Same full-bleed technique as .kaelis-activity-chart: breaks out of .kaelis-page's
+   own horizontal padding via matching negative margins, so each stat spans the full
+   viewport width edge-to-edge as a stacked row instead of a boxed grid tile. */
+.kaelis-stat-stack {
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
+  margin-bottom: 8px;
+  background: var(--kaelis-surface-raised);
+  border-top: 1px solid var(--kaelis-line);
+}
+
+.kaelis-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 40px;
+  border-bottom: 1px solid var(--kaelis-line);
+}
+
+.kaelis-stat-row__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--kaelis-gold-wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kaelis-stat-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.kaelis-stat-row__label {
+  font-size: 0.8rem;
+  color: var(--kaelis-ink-soft);
+}
+
+.kaelis-stat-row__value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.kaelis-stat-row__sublabel {
+  font-size: 0.76rem;
+  color: var(--kaelis-ink-faint);
+}
+
+.kaelis-stat-row__skeleton {
+  display: block;
+  width: 60px;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--kaelis-line) 25%, #f0eee7 50%, var(--kaelis-line) 75%);
+  background-size: 200% 100%;
+  animation: kaelis-shimmer 1.4s ease-in-out infinite;
+}
+
+.kaelis-stat-row__badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kaelis-stat-row__badge--trend-up {
+  background: #e8f5ee;
+  color: var(--kaelis-success);
+}
+
+.kaelis-stat-row__badge--active-dot {
+  background: #e8f5ee;
+  color: var(--kaelis-success);
+}
+
+.kaelis-stat-row__badge--hidden {
+  background: #eeeaf7;
+  color: #8a6fd1;
+}
+
+@keyframes kaelis-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- Card ---------- */
+.kaelis-card {
+  background: var(--kaelis-surface-raised);
+  border: 1px solid var(--kaelis-line);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+}
+
+.kaelis-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.kaelis-card__header h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.kaelis-card__header a {
+  font-size: 0.85rem;
+  color: var(--kaelis-gold);
+  text-decoration: none;
+}
+
+/* ---------- Recent campaigns (full-bleed, matches stat stack / chart) ---------- */
+.kaelis-recent-campaigns {
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
+  background: var(--kaelis-surface-raised);
+  border-top: 1px solid var(--kaelis-line);
+}
+
+.kaelis-recent-campaigns__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px 4px;
+}
+
+.kaelis-recent-campaigns__header h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.kaelis-recent-campaigns__header a {
+  font-size: 0.85rem;
+  color: var(--kaelis-gold);
+  text-decoration: none;
+}
+
+/* ---------- Campaign list ---------- */
+.kaelis-campaign-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.kaelis-campaign-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 40px;
+  border-bottom: 1px solid var(--kaelis-line);
+  font-size: 0.9rem;
+}
+
+.kaelis-campaign-row:last-child {
+  border-bottom: none;
+}
+
+.kaelis-campaign-row__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--kaelis-gold-wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kaelis-campaign-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.kaelis-campaign-row__id {
+  font-weight: 500;
+}
+
+.kaelis-campaign-row__recipients {
+  color: var(--kaelis-ink-soft);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.kaelis-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--kaelis-gold-wash);
+  color: var(--kaelis-gold);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.kaelis-status-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.kaelis-status-pill--active {
+  background: #e8f5ee;
+  color: var(--kaelis-success);
+}
+
+.kaelis-status-pill--paused {
+  background: #fdf3e3;
+  color: var(--kaelis-warning);
+}
+
+.kaelis-status-pill--completed {
+  background: #eef0f2;
+  color: var(--kaelis-ink-soft);
+}
+
+/* ---------- Distributions list (full-bleed rows, matches Recent Campaigns pattern) ---------- */
+.kaelis-distributions-list {
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  margin-right: -40px;
+  background: var(--kaelis-surface-raised);
+  border-top: 1px solid var(--kaelis-line);
+}
+
+.kaelis-distributions-list .kaelis-skeleton-list,
+.kaelis-distributions-list .kaelis-empty-state {
+  padding: 16px 40px;
+}
+
+.kaelis-distribution-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 40px;
+  border-bottom: 1px solid var(--kaelis-line);
+  text-decoration: none;
+  color: inherit;
+  transition: background 150ms ease;
+}
+
+.kaelis-distribution-row:last-child {
+  border-bottom: none;
+}
+
+.kaelis-distribution-row:hover {
+  background: var(--kaelis-surface);
+}
+
+.kaelis-distribution-row__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Distinct accent per campaign type -- gives the list visual rhythm instead of every
+   row looking identical, while staying within the existing palette (gold, success
+   green, a muted blue, and a muted purple already used elsewhere for badges). */
+.kaelis-distribution-row__icon--airdrop {
+  background: var(--kaelis-gold-wash);
+  color: var(--kaelis-gold);
+}
+
+.kaelis-distribution-row__icon--vesting {
+  background: #e8f5ee;
+  color: var(--kaelis-success);
+}
+
+.kaelis-distribution-row__icon--payroll {
+  background: #e6f0fa;
+  color: #3b7bc4;
+}
+
+.kaelis-distribution-row__icon--grant {
+  background: #eeeaf7;
+  color: #8a6fd1;
+}
+
+.kaelis-distribution-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kaelis-distribution-row__title-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kaelis-distribution-row__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kaelis-distribution-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--kaelis-ink-soft);
+  flex-wrap: wrap;
+}
+
+.kaelis-distribution-row__token {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.kaelis-distribution-row__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--kaelis-ink-faint);
+  flex-shrink: 0;
+}
+
+/* ---------- Empty / skeleton states ---------- */
+.kaelis-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 20px;
+  color: var(--kaelis-ink-soft);
+  text-align: center;
+}
+
+.kaelis-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kaelis-skeleton-row {
+  height: 52px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--kaelis-line) 25%, #f0eee7 50%, var(--kaelis-line) 75%);
+  background-size: 200% 100%;
+  animation: kaelis-shimmer 1.4s ease-in-out infinite;
+}
+
+/* ---------- Bottom nav (mobile) ---------- */
+.kaelis-bottom-nav {
+  display: none;
+}
+
+.kaelis-bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  color: var(--kaelis-ink-faint);
+  font-size: 0.68rem;
+  font-family: var(--font-body);
+  text-decoration: none;
+  padding: 4px 12px;
+  min-height: 44px;
+  min-width: 56px;
+}
+
+.kaelis-bottom-nav__item--active {
+  color: var(--kaelis-gold);
+}
+
+/* ---------- More sheet ---------- */
+.kaelis-more-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.4);
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+}
+
+.kaelis-more-sheet {
+  width: 100%;
+  background: var(--kaelis-bg);
+  border-radius: 20px 20px 0 0;
+  padding: 12px 20px calc(24px + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-raised);
+}
+
+.kaelis-more-sheet__handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--kaelis-line);
+  margin: 4px auto 20px;
+}
+
+.kaelis-more-sheet__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.kaelis-more-sheet__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border-radius: var(--radius-control);
+  background: var(--kaelis-surface);
+  color: var(--kaelis-ink);
+  text-decoration: none;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.kaelis-more-sheet__item svg {
+  color: var(--kaelis-gold);
+}
+
+.kaelis-more-sheet__item--disabled {
+  cursor: default;
+  color: var(--kaelis-ink-faint);
+  position: relative;
+}
+
+.kaelis-more-sheet__item--disabled svg {
+  color: var(--kaelis-ink-faint);
+}
+
+.kaelis-more-sheet__item--disabled .kaelis-coming-soon-badge {
+  font-size: 0.58rem;
+  padding: 1px 6px;
+  margin-top: 2px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .kaelis-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .kaelis-sidebar {
+    display: none;
+  }
+
+  .kaelis-topbar,
+  .kaelis-page {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .kaelis-activity-chart {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .kaelis-dashboard-hero {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 32px 20px 20px;
+  }
+
+  .kaelis-stat-stack {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+
+  .kaelis-stat-row {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .kaelis-recent-campaigns {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+
+  .kaelis-recent-campaigns__header {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .kaelis-campaign-row {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .kaelis-distributions-list {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+
+  .kaelis-distributions-list .kaelis-skeleton-list,
+  .kaelis-distributions-list .kaelis-empty-state {
+    padding: 16px 20px;
+  }
+
+  .kaelis-distribution-row {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .kaelis-dashboard-header {
+    gap: 12px;
+  }
+
+  .kaelis-dashboard-header__title {
+    font-size: 1.5rem;
+  }
+
+  .kaelis-dashboard-header__illustration {
+    width: 64px;
+    height: 64px;
+  }
+
+  .kaelis-privacy-banner {
+    font-size: 0.8rem;
+  }
+
+  .kaelis-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--kaelis-bg);
+    border-top: 1px solid var(--kaelis-line);
+    justify-content: space-around;
+    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+    z-index: 30;
+  }
+
+  .kaelis-app-shell__content {
+    padding-bottom: 70px;
+  }
+}

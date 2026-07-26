@@ -62,11 +62,31 @@ export default function FaucetPage() {
           <div className="kaelis-faucet-card__icon">
             <FaucetIcon />
           </div>
+
+          <p className="kaelis-faucet-card__eyebrow">Test Tokens</p>
           <h2 className="kaelis-form-title">1,000 kUSD</h2>
           <p className="kaelis-form-hint">
             Minted directly to your connected wallet. You can use these to fund a
             confidential distribution on the Distributions page.
           </p>
+
+          <div className="kaelis-faucet-features">
+            <div className="kaelis-faucet-feature">
+              <LockIcon />
+              <span className="kaelis-faucet-feature__label">Private</span>
+              <span className="kaelis-faucet-feature__sub">by default</span>
+            </div>
+            <div className="kaelis-faucet-feature">
+              <ShieldSmallIcon />
+              <span className="kaelis-faucet-feature__label">Encrypted</span>
+              <span className="kaelis-faucet-feature__sub">balances</span>
+            </div>
+            <div className="kaelis-faucet-feature">
+              <BeakerIcon />
+              <span className="kaelis-faucet-feature__label">Test Tokens</span>
+              <span className="kaelis-faucet-feature__sub">for Sepolia</span>
+            </div>
+          </div>
 
           {state === 'idle' && (
             <button className="kaelis-btn kaelis-btn--primary kaelis-btn--large" onClick={handleClaim}>
@@ -116,6 +136,13 @@ export default function FaucetPage() {
               </button>
             </div>
           )}
+
+          <div className="kaelis-faucet-info">
+            <InfoIcon />
+            <span>
+              KaelisToken is confidential (ERC-7984) and built on iExec Nox Protocol.
+            </span>
+          </div>
         </div>
       </div>
     </>
@@ -131,6 +158,50 @@ function FaucetIcon() {
         strokeWidth="1.6"
       />
       <path d="M20 14v10M15 19h10" stroke="var(--kaelis-gold)" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ShieldSmallIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 3 L20 6.5 V11.5 C20 16.5 16.6 20.3 12 21.5 C7.4 20.3 4 16.5 4 11.5 V6.5 Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+    </svg>
+  );
+}
+
+function LockIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+function BeakerIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M9 3h6M10 3v6l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 11v5.5M12 7.5v.01" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
 }
@@ -153,4 +224,4 @@ function CheckBadge() {
       <path d="M12 20.5 17.5 26 29 14" stroke="var(--kaelis-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-          }
+        }

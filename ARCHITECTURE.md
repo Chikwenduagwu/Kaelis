@@ -2,130 +2,222 @@
 
 ## Overview
 
-Kaelis has three moving pieces:
+Kaelis consists of four core components:
 
-1. **`KaelisCampaignManager.sol`** — the confidential distribution engine. Tracks
-   campaigns (Airdrop / Vesting / Payroll / Grant), recipients, and encrypted
-   allocation/claimed-amount state.
-2. **`KaelisToken.sol`** — a native ERC-7984 confidential token, extending the
-   official `@iexec-nox/nox-confidential-contracts` `ERC7984` reference
-   implementation. Campaigns are funded by minting/transferring `KaelisToken` into
-   the campaign manager's own balance; claims move value out of that pooled balance.
-3. **Next.js frontend** — wagmi/viem for wallet + contract reads, `@iexec-nox/handle`
-   for client-side encryption (`encryptInput`) and decryption (`decrypt`).
+1. **`KaelisCampaignManager.sol`**
+   The confidential distribution engine responsible for creating and managing Airdrop, Vesting, Payroll, and Grant campaigns. It stores recipients together with encrypted allocation and claimed-amount handles while enforcing campaign rules.
 
-## How Nox actually works (and why the contracts are shaped this way)
+2. **`KaelisToken.sol`**
+   A native ERC-7984 confidential token extending the official `@iexec-nox/nox-confidential-contracts` `ERC7984` reference implementation. Campaigns are funded by minting or transferring `KaelisToken` into the campaign manager's balance, allowing recipients to claim confidential allocations directly from the pooled funds.
 
-This section exists because it's easy to describe Nox as "an off-chain compute API
-you call from your frontend," which is wrong and would have led to a materially
-different (and non-functional) contract design. The real mechanics, confirmed against
-the `@iexec-nox/nox-protocol-contracts` and `@iexec-nox/nox-confidential-contracts`
-npm packages:
+3. **Human Passport**
+   Human Passport provides Sybil resistance by verifying that recipients are unique humans before they can participate in distributions. Campaign creators can optionally require Human Passport verification, ensuring confidential rewards reach genuine participants instead of duplicate wallets.
 
-- **Handles, not ciphertext-in-calldata.** Encrypting a value with the JS SDK's
-  `encryptInput()` sends the plaintext over TLS to Nox's Handle Gateway, which returns
-  a 32-byte `handle` (a pointer) and a `handleProof`. Your transaction includes only
-  the handle and proof — the plaintext never touches the chain.
-- **Computation is asynchronous and on-chain-triggered.** A Solidity call like
-  `Nox.add(a, b)` doesn't compute the sum synchronously in the EVM. It emits a
-  `NoxCompute` event carrying input/output handle references; an off-chain **Runner**
-  picks up that event, performs the real arithmetic inside a TEE, and eventually the
-  result becomes decryptable. The handle returned on-chain is valid *immediately* for
-  further on-chain composition (you can pass it into the next `Nox.*` call in the same
-  transaction), but a *human* trying to decrypt that result may need to wait a few
-  seconds for the off-chain Runner to catch up. This is why
-  `frontend/lib/useDecryptHandle.ts` treats decryption as a genuine async operation
-  with a real "pending" state, not a spinner masking an instant call — the underlying
-  SDK's `decrypt()` retries with backoff internally for exactly this reason
-  (confirmed in `@iexec-nox/handle`'s source, `methods/decrypt.ts`).
-- **ACLs, not access lists you build yourself.** Every handle has an on-chain Access
-  Control List. `Nox.allowThis(handle)` lets the contract itself keep reusing the
-  handle in later transactions; `Nox.allow(handle, address)` grants a specific address
-  decrypt rights; `Nox.addViewer(handle, address)` grants read-only audit access
-  without full admin rights. `KaelisCampaignManager.grantViewer()` uses this directly
-  for the "selective disclosure" story — an auditor can be given visibility into a
-  specific recipient's allocation without that data ever becoming public.
-- **You cannot branch control flow on encrypted data.** There is no way to write
-  `require(encryptedAmount <= encryptedBalance)` — Solidity's `if`/`require` need a
-  plaintext boolean, and the whole point is that the amount isn't plaintext. Nox
-  provides `Nox.safeSub`/`Nox.safeAdd`, which return `(ebool success, euint256
-  result)`, and `Nox.select(condition, ifTrue, ifFalse)`, which lets you pick between
-  two encrypted values based on an encrypted condition. `KaelisCampaignManager.claim()`
-  uses exactly this pattern: if a recipient tries to claim more than they're vested
-  for, the claimable amount silently resolves to the correct (smaller, or zero)
-  figure instead of reverting. This matters for privacy, not just UX — a revert
-  triggered by a failed encrypted comparison would leak information (that the
-  requested amount exceeded the true balance) through the mere fact that the
-  transaction failed.
+4. **Next.js Frontend**
+   Built with Next.js, wagmi, and viem for wallet connectivity and contract interactions, `@iexec-nox/handle` for client-side encryption (`encryptInput`) and decryption (`decrypt`), and Human Passport for recipient verification.
 
-## Why one `KaelisCampaignManager` instead of four separate contracts
+---
 
-Airdrops, vesting, payroll, and grants differ in *when* tokens unlock, not in *how*
-confidentiality is enforced. A payroll schedule is linear vesting with shorter,
-recurring periods; a grant is vesting gated additionally by milestone completion. All
-four share:
+## How Nox actually works (and why the contracts are designed this way)
 
-- the same encrypted allocation/claimed-amount handle pair per recipient,
-- the same `safeSub` + `select` claim-math pattern,
-- the same ACL-granting sequence after every mutation.
+Nox is not an off-chain computation API that your frontend calls directly. Confidential computation is initiated from smart contracts and coordinated through the Nox infrastructure. Understanding this distinction is important because it fundamentally shapes the architecture of Kaelis.
 
-Building four near-identical contracts would have meant either drifting out of sync
-on the (security-critical) encrypted arithmetic, or extracting a shared library
-anyway — so `CampaignType` is a field, not a contract boundary. `_vestedBasisPoints()`
-is the one function that actually branches per type, and it operates entirely on
-plaintext timestamps (which aren't sensitive — only *amounts* are confidential).
+### Handles instead of ciphertext
+
+Client-side encryption begins with `encryptInput()` from the Nox SDK.
+
+The plaintext value is securely transmitted to the Nox Handle Gateway, which returns:
+
+- a 32-byte encrypted handle
+- a corresponding proof
+
+Only the handle and proof are submitted on-chain. The original plaintext allocation never reaches Ethereum.
+
+### Asynchronous confidential computation
+
+Operations such as:
+
+```solidity
+Nox.add(a, b)
+Nox.sub(a, b)
+Nox.mul(a, b)
+```
+
+do not execute arithmetic directly inside the EVM.
+
+Instead they emit a `NoxCompute` event containing references to encrypted handles.
+
+The Nox Runner observes the event, performs confidential computation inside a Trusted Execution Environment (TEE), and produces a new encrypted result.
+
+The returned handle is immediately valid for additional confidential operations inside the same transaction, but human-readable decryption becomes available only after the Runner finishes processing.
+
+For this reason Kaelis treats decryption as a genuinely asynchronous operation rather than assuming results are immediately available.
+
+### Access Control Lists
+
+Every encrypted handle owns an on-chain Access Control List.
+
+Kaelis uses three permission primitives extensively:
+
+- `Nox.allowThis(handle)` allows the current contract to continue using the handle in future transactions.
+- `Nox.allow(handle, address)` grants decryption rights to a specific address.
+- `Nox.addViewer(handle, address)` grants selective disclosure without administrative privileges.
+
+This enables Kaelis' selective disclosure model, where auditors can inspect confidential allocations without exposing them publicly.
+
+### Confidential control flow
+
+Encrypted values cannot be used directly inside Solidity control flow.
+
+Statements such as:
+
+```solidity
+require(balance >= amount);
+```
+
+cannot operate on encrypted values.
+
+Instead Kaelis relies on:
+
+- `Nox.safeAdd`
+- `Nox.safeSub`
+- `Nox.select`
+
+to perform confidential arithmetic without revealing intermediate values.
+
+`claim()` computes the recipient's vested amount, subtracts previously claimed tokens, and selects the appropriate encrypted result without leaking information through transaction failures.
+
+---
+
+## Human Passport integration
+
+Human Passport complements Nox by solving a different problem.
+
+While Nox protects confidential allocation data, Human Passport verifies recipient uniqueness before confidential claims are processed.
+
+This combination allows Kaelis to provide:
+
+- confidential allocations
+- confidential claim amounts
+- confidential balances
+- Sybil-resistant recipient verification
+
+Campaign creators may optionally require Human Passport verification before recipients become eligible to claim.
+
+---
+
+## Why one `KaelisCampaignManager` instead of four contracts
+
+Airdrops, Vesting, Payroll, and Grants differ only in how tokens unlock.
+
+The confidential lifecycle remains identical.
+
+Every campaign shares:
+
+- encrypted allocation handles
+- encrypted claimed handles
+- identical confidential claim arithmetic
+- identical permission management
+- identical confidential transfer flow
+
+Rather than duplicating nearly identical confidential logic across multiple contracts, Kaelis represents campaign behaviour through `CampaignType`.
+
+The only campaign-specific logic exists inside `_vestedBasisPoints()`, which operates entirely on plaintext timestamps because only token amounts are considered confidential.
+
+---
 
 ## Funding and claiming flow
 
-```
-Distributor                     KaelisToken                KaelisCampaignManager
-    |                                |                              |
-    |--- encryptInput(fundAmount) -->|  (via Nox Handle Gateway)     |
-    |--- mint(manager, handle) ---------------------------->|        |
-    |                                |<--- balance updated ---------|
-    |                                |                              |
-    |--- createCampaign(...) --------------------------------------->|
-    |--- encryptInput(allocation) -->|  (via Nox Handle Gateway)     |
-    |--- addRecipient(id, r, handle, proof) -------------------------->|
-    |--- sealCampaign(id) --------------------------------------------->|
+```text
+Distributor
+      │
+      ├── encryptInput(funding)
+      ▼
+Nox Handle Gateway
+      │
+      ▼
+KaelisToken.mint()
+      │
+      ▼
+KaelisCampaignManager
 
-Recipient                                                  KaelisCampaignManager
-    |--- claim(id) ---------------------------------------------------->|
-    |                                                     computes vested - claimed
-    |                                                     via safeSub + select
-    |                                                     calls KaelisToken.confidentialTransfer(
-    |                                                       recipient, claimable)  <- moves value
-    |<---------------------------------------- Claimed event -----------|
-    |--- decrypt(claimedHandle) ---->|  (via Nox Handle Gateway, EIP-712 signed)
+Create Campaign
+      │
+      ▼
+encryptInput(allocation)
+      │
+      ▼
+Add Recipient
+      │
+      ▼
+Seal Campaign
+
+────────────────────────────────────
+
+Recipient
+      │
+      ▼
+Human Passport Verification
+      │
+      ▼
+claim()
+      │
+      ▼
+Confidential arithmetic
+(safeSub + select)
+      │
+      ▼
+KaelisToken.confidentialTransfer()
+      │
+      ▼
+Recipient receives confidential tokens
+      │
+      ▼
+decrypt()
 ```
 
-The `confidentialTransfer(address, euint256)` overload used inside `claim()` requires
-the caller to already hold ACL access on the amount handle (`Nox.isAllowed`) — since
-`KaelisCampaignManager` is the caller and it just ran `Nox.allowThis(claimable)`
-moments earlier, this check passes without any extra plumbing.
+The `confidentialTransfer(address, euint256)` overload requires the caller to already possess ACL access to the encrypted amount handle.
+
+Since `KaelisCampaignManager` grants itself permission through `Nox.allowThis(claimable)` immediately before calling the token contract, the authorization succeeds without requiring additional contract interactions.
+
+---
 
 ## Deliberate scope decisions
 
-- **No local Docker-backed Nox test stack.** The `nox-hardhat-plugin` can boot a full
-  offchain stack (Handle Gateway, KMS simulator) locally for `hardhat test`. Given
-  this project's environment (GitHub Codespaces, no local Docker), we deploy and
-  iterate directly against Sepolia instead, where Nox's real infrastructure is
-  already live. `hardhat.config.ts` sets `nox.skipTestOverride: true` to make this
-  explicit rather than have `hardhat test` silently attempt (and fail) to launch
-  Docker.
-- **Injected wallet only, no WalletConnect**, per the product brief — this keeps the
-  wallet surface to MetaMask/Rabby/Coinbase Wallet-class extensions.
-- **`uint256`-only encryption.** Nox's `encryptInput()` currently supports `bool`,
-  `uint16`, `uint256`, `int16`, `int256` (confirmed in `@iexec-nox/handle` source).
-  All Kaelis amounts use `euint256`, so this isn't a limitation in practice.
+### No local Docker-backed Nox stack
 
-## Verified-against-source, not assumed
+Although the Nox Hardhat plugin supports a complete local off-chain stack, Kaelis was intentionally developed and tested directly against Ethereum Sepolia.
 
-Every `Nox.*` function call, the `ERC7984`/`ERC7984Base` inheritance chain, the
-`@iexec-nox/handle` SDK's method signatures, and the deployed Sepolia `NoxCompute`
-address (`0x24Ef36Ec5b626D7DCD09a98F3083c2758F0F77bF`) were confirmed by downloading
-and reading the actual npm packages (`@iexec-nox/nox-protocol-contracts@0.2.4`,
-`@iexec-nox/nox-confidential-contracts@0.2.2`, `@iexec-nox/handle@0.1.0-beta.13`)
-rather than inferred from documentation alone. Both contracts compile cleanly against
-these real packages (see `artifacts-check/` for compiled ABIs generated during
-development).
+This matches the production environment and avoids Docker dependencies inside GitHub Codespaces.
+
+`hardhat.config.ts` explicitly enables:
+
+```ts
+nox.skipTestOverride = true;
+```
+
+to make this workflow explicit.
+
+### Injected wallets only
+
+Kaelis currently supports injected wallets such as:
+
+- MetaMask
+- Rabby
+- Coinbase Wallet
+
+WalletConnect is intentionally omitted to keep the demo focused.
+
+### Standardised encrypted values
+
+All confidential values use `euint256`.
+
+Although the SDK supports additional encrypted primitive types, a single encrypted integer representation simplifies confidential arithmetic throughout the application.
+
+---
+
+## Verified against source
+
+Every `Nox.*` function, the complete `ERC7984` inheritance chain, the `@iexec-nox/handle` SDK, and the deployed Sepolia Nox contracts were verified directly from the official npm packages rather than inferred solely from documentation.
+
+Both `KaelisCampaignManager` and `KaelisToken` compile against the published packages and were validated throughout development using the generated ABIs inside `artifacts-check/`.

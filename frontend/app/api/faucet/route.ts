@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { JsonRpcProvider, Wallet, Contract, isAddress } from 'ethers';
 import { createEthersHandleClient } from '@iexec-nox/handle';
-import { getPassportScore } from '../passport/score/route';
 
 // Node.js runtime required (not Edge) -- ethers signing + the Nox handle client both
 // need real Node crypto/network APIs that aren't available in the Edge runtime.
@@ -22,16 +21,10 @@ const TOKEN_ABI = [
  * server-only secret (DEPLOYER_PRIVATE_KEY, no NEXT_PUBLIC_ prefix -- never sent to
  * the browser) and signs the mint on the visitor's behalf.
  *
- * Sybil resistance: gated by Gitcoin/Human Passport score (see ../passport/score/route.ts).
- * This is checked server-side here regardless of what the frontend already showed the
- * user, since a client-side-only check can be bypassed by anyone hitting this endpoint
- * directly with curl/Postman.
- *
- * No per-wallet cooldown: per product decision, a passing-score wallet can claim
- * repeatedly. Vercel's API routes are stateless/serverless, so a true cooldown would
- * need external persistent storage (KV/DB) which this project doesn't have configured --
- * if a cooldown is wanted later, that's the piece to add, and the Passport cache above
- * would need to move to the same store.
+ * No rate limiting: per product decision, visitors can claim any time. Vercel's API
+ * routes are stateless/serverless, so a true per-wallet cooldown would need external
+ * persistent storage (KV/DB) which this project doesn't have configured -- if a
+ * cooldown is wanted later, that's the piece to add.
  */
 export async function POST(request: NextRequest) {
   const { SEPOLIA_RPC_URL, DEPLOYER_PRIVATE_KEY, NEXT_PUBLIC_KAELIS_TOKEN_ADDRESS } = process.env;
@@ -53,23 +46,6 @@ export async function POST(request: NextRequest) {
   const recipient = body.address;
   if (!recipient || !isAddress(recipient)) {
     return NextResponse.json({ error: 'A valid wallet address is required.' }, { status: 400 });
-  }
-
-  // Gitcoin/Human Passport gate -- must pass before we ever touch the mint call
-  try {
-    const passport = await getPassportScore(recipient);
-    if (!passport.passingScore) {
-      return NextResponse.json(
-        {
-          error: `Passport score too low (${passport.score.toFixed(1)}/${passport.threshold}). Verify more stamps at passport.xyz and try again.`,
-        },
-        { status: 403 }
-      );
-    }
-  } catch (err) {
-    console.error('[faucet] passport check failed:', err);
-    const message = err instanceof Error ? err.message : 'Passport verification failed.';
-    return NextResponse.json({ error: message }, { status: 502 });
   }
 
   try {
@@ -98,4 +74,4 @@ export async function POST(request: NextRequest) {
     const message = error instanceof Error ? error.message : 'Faucet mint failed.';
     return NextResponse.json({ error: message }, { status: 500 });
   }
-      }
+}

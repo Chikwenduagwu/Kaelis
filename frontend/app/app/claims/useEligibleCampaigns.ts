@@ -9,34 +9,25 @@ export interface EligibleCampaign {
   campaignType: string;
   tokenSymbol: string;
   status: number; // 0 = Active, 1 = Paused, 2 = Completed
-  allocation: bigint;
-  claimed: bigint;
-  isFullyClaimed: boolean;
 }
 
 /**
  * Scans every campaign (0..campaignCount()) checking isRecipient(id, address) for
- * the connected wallet, then decrypts BOTH the allocation and claimed-so-far handles
- * for each eligible campaign to determine real claim status up front.
+ * the connected wallet, then reads plain (non-encrypted) campaign metadata for the
+ * ones the wallet is eligible for.
  *
- * This requires a wallet signature per decrypted handle (2 per eligible campaign) --
- * a real UX cost, but the alternative (not checking) is exactly the bug being fixed
- * here: a recipient re-running claim() on an already-fully-claimed campaign gets a
- * technically-successful but zero-value transaction, which without this check reads
- * to the user as "I claimed again" with no indication nothing new was actually paid
- * out. Deciding claim status from real decrypted amounts, not just campaign
- * metadata, is what makes "already claimed" an honest, accurate state rather than a
- * guess.
+ * Deliberately does NOT decrypt allocation/claimed amounts here -- that used to
+ * happen automatically for every eligible campaign on page load, which meant up to
+ * 2 wallet signature prompts per campaign before the user had done anything. That
+ * decryption now happens on demand, per campaign, only when the user explicitly
+ * clicks "Check Claim Status" on that row (see useClaimStatus.ts). This hook's job
+ * is just: "which campaigns can this wallet see," fast and silent.
  *
- * Bounded, small-scale reads (isRecipient + getCampaign + getAllocationHandle +
- * getClaimedHandle are plain contract calls, not eth_getLogs), so this doesn't hit
- * the block-range limits that broke the dashboard's old getLogs-based approach.
+ * Bounded, small-scale reads (isRecipient + getCampaign are plain contract calls,
+ * not eth_getLogs), so this doesn't hit the block-range limits that broke the
+ * dashboard's old getLogs-based approach.
  */
-export function useEligibleCampaigns(
-  address: `0x${string}` | undefined,
-  decryptHandle: (handle: `0x${string}`) => Promise<bigint>,
-  isDecryptReady: boolean
-) {
+export function useEligibleCampaigns(address: `0x${string}` | undefined) {
   const publicClient = usePublicClient();
   const [campaigns, setCampaigns] = useState<EligibleCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,13 +36,7 @@ export function useEligibleCampaigns(
   const isDeployed = CONTRACTS.KaelisCampaignManager !== '0x0000000000000000000000000000000000000000';
 
   useEffect(() => {
-    // Wait for BOTH an address AND a fully-ready wallet client (isDecryptReady) --
-    // wagmi's useAccount() can resolve `address` on an earlier render than
-    // useWalletClient() resolves the actual signer object, and this effect needs a
-    // real signer to call decryptHandle. Gating on address alone caused a real bug:
-    // the effect would fire in that gap and throw "Wallet not connected" even though
-    // the UI already showed a connected wallet.
-    if (!publicClient || !isDeployed || !address || !isDecryptReady) {
+    if (!publicClient || !isDeployed || !address) {
       setIsLoading(false);
       setCampaigns([]);
       return;
@@ -112,34 +97,6 @@ export function useEligibleCampaigns(
           )
         );
 
-        // Decrypt allocation + claimed for each eligible campaign, sequentially --
-        // each decrypt is a signed request, so running them one at a time avoids
-        // firing a burst of simultaneous wallet signature prompts.
-        const claimStatuses: Array<{ allocation: bigint; claimed: bigint }> = [];
-        for (const id of eligibleIds) {
-          const [allocationHandle, claimedHandle] = await Promise.all([
-            publicClient!.readContract({
-              address: CONTRACTS.KaelisCampaignManager,
-              abi: KaelisCampaignManagerABI as any,
-              functionName: 'getAllocationHandle',
-              args: [id, address],
-            }) as Promise<`0x${string}`>,
-            publicClient!.readContract({
-              address: CONTRACTS.KaelisCampaignManager,
-              abi: KaelisCampaignManagerABI as any,
-              functionName: 'getClaimedHandle',
-              args: [id, address],
-            }) as Promise<`0x${string}`>,
-          ]);
-
-          const [allocation, claimed] = await Promise.all([
-            decryptHandle(allocationHandle),
-            decryptHandle(claimedHandle),
-          ]);
-
-          claimStatuses.push({ allocation, claimed });
-        }
-
         if (cancelled) return;
 
         const parsed: EligibleCampaign[] = campaignDetails.map((raw: any, i) => ({
@@ -149,9 +106,6 @@ export function useEligibleCampaigns(
             SUPPORTED_TOKENS.find((t) => t.address.toLowerCase() === raw.token.toLowerCase())?.symbol ??
             'Unknown',
           status: raw.status,
-          allocation: claimStatuses[i].allocation,
-          claimed: claimStatuses[i].claimed,
-          isFullyClaimed: claimStatuses[i].claimed >= claimStatuses[i].allocation,
         }));
 
         setCampaigns(parsed);
@@ -168,8 +122,7 @@ export function useEligibleCampaigns(
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [publicClient, isDeployed, address, isDecryptReady]);
+  }, [publicClient, isDeployed, address]);
 
   return { campaigns, isLoading, error, isDeployed };
-}
+          }

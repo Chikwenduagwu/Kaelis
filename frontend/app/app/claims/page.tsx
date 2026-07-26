@@ -8,6 +8,7 @@ import { TxStatusBanner } from '../components/TxStatusBanner';
 import { useContractTransaction } from '../../../lib/useContractTransaction';
 import { useDecryptHandle } from '../../../lib/useDecryptHandle';
 import { useEligibleCampaigns } from './useEligibleCampaigns';
+import { usePassportScore } from './usePassportScore';
 import { CONTRACTS, KaelisCampaignManagerABI } from '../../../lib/contracts';
 
 export default function ClaimsPage() {
@@ -16,13 +17,21 @@ export default function ClaimsPage() {
   const { decryptHandle, state: decryptState, isReady: isDecryptReady } = useDecryptHandle();
   const { campaigns, isLoading, error, isDeployed } = useEligibleCampaigns(address, decryptHandle, isDecryptReady);
   const { execute, status, errorMessage, txHash } = useContractTransaction();
+  const { state: passportState, score: passportScore, threshold: passportThreshold } = usePassportScore(address);
 
   const [claimingId, setClaimingId] = useState<bigint | null>(null);
   const [claimedResults, setClaimedResults] = useState<Record<string, bigint>>({});
   const [claimError, setClaimError] = useState<string | null>(null);
 
+  // Client-side gate only: this prevents casual/bot claiming through the UI, but a
+  // wallet already on a campaign's recipient list could still call claim() directly
+  // against the contract, bypassing this check entirely. Real enforcement would need
+  // the score checked on-chain (e.g. via an oracle/attestation the contract reads),
+  // which isn't in place here -- treat this as a UX deterrent, not a security boundary.
+  const passportGatePassed = passportState === 'passed';
+
   async function handleClaim(campaignId: bigint) {
-    if (!address) return;
+    if (!address || !passportGatePassed) return;
     setClaimingId(campaignId);
     setClaimError(null);
 
@@ -72,6 +81,26 @@ export default function ClaimsPage() {
           title="Claims"
           subtitle="Verify eligibility privately and securely claim your confidential allocation."
         />
+
+        {passportState === 'checking' && (
+          <div className="kaelis-empty-banner">Checking your Gitcoin Passport score…</div>
+        )}
+
+        {passportState === 'error' && (
+          <div className="kaelis-empty-banner kaelis-empty-banner--error">
+            Couldn&apos;t verify your Passport score right now. Try refreshing the page.
+          </div>
+        )}
+
+        {passportState === 'failed' && (
+          <div className="kaelis-empty-banner kaelis-empty-banner--error">
+            Your Gitcoin Passport score ({passportScore?.toFixed(1)}) is below the required
+            threshold ({passportThreshold}). Claiming is disabled until you verify more stamps.{' '}
+            <a href="https://app.passport.xyz" target="_blank" rel="noreferrer">
+              Verify on Passport
+            </a>
+          </div>
+        )}
 
         {isDeployed && error && (
           <div className="kaelis-empty-banner kaelis-empty-banner--error">{error}</div>
@@ -176,7 +205,8 @@ export default function ClaimsPage() {
                     <button
                       className="kaelis-btn kaelis-btn--primary kaelis-eligible-row__claim-btn"
                       onClick={() => handleClaim(c.id)}
-                      disabled={isThisClaiming || isPaused || isCompleted}
+                      disabled={isThisClaiming || isPaused || isCompleted || !passportGatePassed}
+                      title={!passportGatePassed ? 'Passport score too low to claim' : undefined}
                     >
                       {isThisClaiming ? 'Claiming…' : 'Claim'}
                     </button>
@@ -219,4 +249,4 @@ function CheckBadge() {
       <path d="M6 10.5 8.5 13 14 7" stroke="var(--kaelis-success)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-                }
+}

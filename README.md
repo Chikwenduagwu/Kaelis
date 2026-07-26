@@ -4,7 +4,7 @@
 
 ### Confidential Token Operations powered by iExec Nox
 
-Privacy-first token distributions, vesting, payroll, and grants where recipient allocations remain encrypted end-to-end while every operation stays verifiable on-chain.
+Kaelis combines Human Passport with iExec Nox to deliver Sybil-resistant confidential token distributions, vesting, payroll, and grants, ensuring only verified humans can participate while recipient allocations remain encrypted end-to-end and every operation stays publicly verifiable on-chain.
 
 <br/>
 
@@ -28,7 +28,8 @@ Privacy-first token distributions, vesting, payroll, and grants where recipient 
 
 > [!IMPORTANT]
 >
-> **Kaelis runs entirely on live infrastructure** — deployed on **Ethereum Sepolia** with **iExec Nox** confidential smart contracts. There is no mock data anywhere; every campaign, allocation, claim, and confidential computation shown comes directly from the deployed contracts.
+> **Kaelis runs entirely on live infrastructure** — deployed on **Ethereum Sepolia** with **iExec Nox** confidential smart contracts and **Human passport**.
+> There is no mock data anywhere; every campaign, allocation, claim, and confidential computation shown comes directly from the deployed contracts.
 
 ---
 
@@ -52,9 +53,9 @@ Privacy-first token distributions, vesting, payroll, and grants where recipient 
 
 # Overview
 
-Traditional token distribution platforms expose every recipient's allocation publicly on-chain — employee salaries, investor vesting, community rewards, treasury distributions, and grant funding are all visible to anyone inspecting the chain.
+Traditional token distribution platforms expose every recipient's allocation publicly on-chain. Employee salaries, investor vesting schedules, community rewards, treasury distributions, and grant funding are all visible to anyone inspecting the blockchain. This lack of privacy can reveal sensitive financial information, discourage participation, and leave organisations without a practical way to distribute assets confidentially.
 
-Kaelis changes this. Using **iExec Nox Confidential Computing**, allocation amounts stay encrypted through funding, distribution, vesting, payroll, grants, and claims. Recipients decrypt only their own allocations, organizations can selectively grant auditors viewing rights, and everyone else sees only that a confidential transaction occurred — not the values behind it.
+Kaelis changes this. Using **iExec Nox Confidential Computing**, allocation amounts stay encrypted through funding, distribution, vesting, payroll, grants, and claims. Recipients decrypt only their own allocations, organizations can selectively grant auditors viewing rights, and everyone else sees only that a confidential transaction occurred not the values behind it.
 
 > [!NOTE]
 >
@@ -66,7 +67,8 @@ Kaelis changes this. Using **iExec Nox Confidential Computing**, allocation amou
 
 > **Organizations shouldn't have to reveal sensitive financial information simply because they use a public blockchain.**
 
-Most Web3 payroll, vesting, and airdrop platforms publish recipient allocations forever. Kaelis combines ERC-7984 confidential tokens, iExec Nox confidential computing, selective disclosure, confidential arithmetic, and encrypted claim flows to keep allocation data private while preserving Ethereum's trust guarantees.
+Most Web3 payroll, vesting, and airdrop platforms publish recipient allocations forever. 
+Kaelis combines **Human Passport**, ERC-7984 confidential tokens, and **iExec Nox** confidential computing with selective disclosure, confidential arithmetic, and encrypted claim flows to ensure only verified humans can participate while keeping allocation data private and preserving Ethereum's trust guarantees.
 
 | Traditional Platforms | Kaelis |
 |-----------------------|---------|

@@ -268,16 +268,134 @@
   align-items: center;
   text-align: center;
   gap: 8px;
-  padding: 40px 32px;
+  padding: 44px 32px 32px;
+  /* Premium-card treatment: subtle lift instead of a flat bordered box, matching
+     the raised, glassy feel used for the processing/success states elsewhere on
+     this page rather than looking like a plain form panel. */
+  box-shadow: var(--shadow-raised);
+  border-color: transparent;
 }
 
+/* Soft gold halo behind the icon (shield) instead of a bare SVG floating on
+   white -- gives the icon a "premium" anchor point, matching the circular
+   icon treatment used for dashboard illustrations and eligible-row icons. */
 .kaelis-faucet-card__icon {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, var(--kaelis-gold-wash) 0%, rgba(176, 141, 63, 0) 72%);
+}
+
+/* Small uppercase label above the amount ("Test Tokens") -- gives the big
+   number a caption instead of it sitting alone under the icon. */
+.kaelis-faucet-card__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kaelis-ink-faint);
+  margin: 0;
+}
+
+.kaelis-faucet-card .kaelis-form-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 2px 0 4px;
+}
+
+.kaelis-faucet-card .kaelis-form-hint {
+  max-width: 46ch;
+  margin: 0 0 4px;
+}
+
+/* Three feature chips (Private by default / Encrypted balances / Test Tokens
+   for Sepolia) -- reinforces the value props inline instead of only in a
+   paragraph, same idea as the "Privacy First / Confidential by Default /
+   Real-time Insights" footer strip in the product marketing. */
+.kaelis-faucet-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin: 12px 0 4px;
+}
+
+.kaelis-faucet-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--kaelis-line);
+  background: var(--kaelis-bg);
+}
+
+.kaelis-faucet-feature svg {
+  color: var(--kaelis-gold);
+}
+
+.kaelis-faucet-feature__label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--kaelis-ink);
+  line-height: 1.2;
+}
+
+.kaelis-faucet-feature__sub {
+  font-size: 0.68rem;
+  color: var(--kaelis-ink-faint);
+  line-height: 1.2;
 }
 
 .kaelis-faucet-card .kaelis-btn--large {
   margin-top: 16px;
   width: 100%;
+}
+
+/* Info banner under the CTA -- calls out the confidential/ERC-7984 + iExec Nox
+   detail without it competing with the main hint copy above the fold. */
+.kaelis-faucet-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-control);
+  background: var(--kaelis-surface);
+  border: 1px solid var(--kaelis-line);
+  font-size: 0.78rem;
+  color: var(--kaelis-ink-soft);
+  text-align: left;
+}
+
+.kaelis-faucet-info svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--kaelis-ink-faint);
+}
+
+@media (max-width: 480px) {
+  .kaelis-faucet-features {
+    gap: 8px;
+  }
+
+  .kaelis-faucet-feature {
+    padding: 10px 6px;
+  }
+
+  .kaelis-faucet-feature__label {
+    font-size: 0.7rem;
+  }
+
+  .kaelis-faucet-feature__sub {
+    display: none;
+  }
 }
 
 .kaelis-processing {
@@ -718,5 +836,3 @@
   color: var(--kaelis-ink-faint);
   cursor: default;
 }
-
-  
